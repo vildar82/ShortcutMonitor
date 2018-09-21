@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2026
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShortcutManager", "ShortcutManager\ShortcutManager.csproj", "{C8DCFB30-C519-4C4B-BE85-17D25437DAC8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShortcutMonitor.GUI", "SortcutMonitor.GUI\ShortcutMonitor.GUI.csproj", "{56D0C43E-9F48-49D6-8039-0E82692D24C6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C8DCFB30-C519-4C4B-BE85-17D25437DAC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C8DCFB30-C519-4C4B-BE85-17D25437DAC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C8DCFB30-C519-4C4B-BE85-17D25437DAC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C8DCFB30-C519-4C4B-BE85-17D25437DAC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56D0C43E-9F48-49D6-8039-0E82692D24C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56D0C43E-9F48-49D6-8039-0E82692D24C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56D0C43E-9F48-49D6-8039-0E82692D24C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56D0C43E-9F48-49D6-8039-0E82692D24C6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
