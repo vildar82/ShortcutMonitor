@@ -57,7 +57,7 @@
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding SourceDwgExist}"
+                                            <DataTrigger Binding="{Binding SourceDwgValid}"
                                                          Value="False">
                                                 <Setter Property="Foreground" Value="Red" />
                                             </DataTrigger>

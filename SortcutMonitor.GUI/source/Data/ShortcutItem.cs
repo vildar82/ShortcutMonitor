@@ -25,7 +25,11 @@
                 Name = shc.Name;
                 DwgRelPath = shc.DwgRelPath?.Path;
                 SourceDwg = shc.Criteria?.File?.Name;
-                SourceDwgExist = !SourceDwg.IsNullOrEmpty() && NetLib.IO.Path.FileExists(SourceDwg);
+                if (!SourceDwg.IsNullOrEmpty())
+                {
+                    SourceDwgValid = !Path.GetPathRoot(SourceDwg).EqualsIgnoreCase(@"W:\") && NetLib.IO.Path.FileExists(SourceDwg);
+                }
+
                 var obj = shc.Criteria?.Object;
                 ElementName = obj?.Name;
                 ElementType = obj?.Type;
@@ -59,7 +63,7 @@
         /// </summary>
         public string SourceDwg { get; set; }
 
-        public bool SourceDwgExist { get; set; }
+        public bool SourceDwgValid { get; set; }
 
         /// <summary>
         /// Название элемента быстрой ссылки - имя поверхности и т.п.
