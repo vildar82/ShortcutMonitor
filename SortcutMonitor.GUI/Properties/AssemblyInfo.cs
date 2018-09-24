@@ -12,5 +12,5 @@ using System.Windows;
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
 [assembly: ThemeInfo(ResourceDictionaryLocation.None,ResourceDictionaryLocation.SourceAssembly)]
-[assembly: AssemblyVersion("1.0.264.74")]
-[assembly: AssemblyFileVersion("1.0.264.74")]
+[assembly: AssemblyVersion("1.0.267.78")]
+[assembly: AssemblyFileVersion("1.0.267.78")]

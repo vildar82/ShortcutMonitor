@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using NetLib.IO;
 
 namespace SortcutMonitor.GUI
 {
@@ -26,6 +27,8 @@ namespace SortcutMonitor.GUI
                 .ObserveOn(dispatcher)
                 .Subscribe(s => Update());
             this.WhenAnyValue(v => v.Filter).Skip(1).Subscribe(s => Elements?.Reset());
+            OpenProjectFolder = CreateCommand<ShortcutItem>(OpenProjectFolderExec);
+            OpenSourceDwg = CreateCommand<ShortcutItem>(OpenSourceDwgExec);
         }
 
         public string ShortcutFolder { get; set; } = @"\\picompany.ru\root\ecp_wip\C3D_Projects";
@@ -33,6 +36,8 @@ namespace SortcutMonitor.GUI
         public string Filter { get; set; }
 
         public IReactiveDerivedList<ShortcutItem> Elements { get; set; }
+        public ReactiveCommand OpenProjectFolder { get; set; }
+        public ReactiveCommand OpenSourceDwg { get; set; }
 
         private async void Update()
         {
@@ -98,6 +103,18 @@ namespace SortcutMonitor.GUI
             if (Filter.IsNullOrEmpty() || item == null)
                 return true;
             return Regex.IsMatch(item.ToString(), Filter, RegexOptions.IgnoreCase);
+        }
+
+        private void OpenProjectFolderExec(ShortcutItem item)
+        {
+            var dir = item.Project.Dir.FullName;
+            dir.StartExplorer();
+        }
+
+        private void OpenSourceDwgExec(ShortcutItem item)
+        {
+            var file = item.SourceDwg;
+            file.StartExplorer();
         }
     }
 }

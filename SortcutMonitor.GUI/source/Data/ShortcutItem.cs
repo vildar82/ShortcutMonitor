@@ -25,6 +25,7 @@
                 Name = shc.Name;
                 DwgRelPath = shc.DwgRelPath?.Path;
                 SourceDwg = shc.Criteria?.File?.Name;
+                SourceDwgExist = !SourceDwg.IsNullOrEmpty() && NetLib.IO.Path.FileExists(SourceDwg);
                 var obj = shc.Criteria?.Object;
                 ElementName = obj?.Name;
                 ElementType = obj?.Type;
@@ -57,6 +58,8 @@
         /// Источник объекта внешней ссылки - файл dwg
         /// </summary>
         public string SourceDwg { get; set; }
+
+        public bool SourceDwgExist { get; set; }
 
         /// <summary>
         /// Название элемента быстрой ссылки - имя поверхности и т.п.
