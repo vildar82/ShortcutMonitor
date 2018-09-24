@@ -1,4 +1,4 @@
-﻿<Application x:Class="SortcutMonitor.GUI.App"
+﻿<Application x:Class="ShortcutMonitor.GUI.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              StartupUri="source/MainWindow.xaml">

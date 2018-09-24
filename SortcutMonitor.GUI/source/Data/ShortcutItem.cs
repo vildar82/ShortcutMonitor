@@ -1,11 +1,11 @@
-﻿namespace SortcutMonitor.GUI.Data
-{
-    using System.IO;
-    using JetBrains.Annotations;
-    using NetLib;
-    using NetLib.Monad;
-    using Xml;
+﻿using System.IO;
+using JetBrains.Annotations;
+using NetLib;
+using NetLib.Monad;
+using ShortcutMonitor.GUI.Xml;
 
+namespace ShortcutMonitor.GUI.Data
+{
     /// <summary>
     /// Элемент быстрой ссылки
     /// </summary>

@@ -1,7 +1,7 @@
-﻿namespace SortcutMonitor.GUI.Xml
-{
-    using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
+namespace ShortcutMonitor.GUI.Xml
+{
     /// <summary>
     /// Файл ShortcutsFolders.xml
     /// </summary>

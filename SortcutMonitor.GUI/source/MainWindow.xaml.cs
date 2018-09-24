@@ -1,4 +1,4 @@
-﻿namespace SortcutMonitor.GUI
+﻿namespace ShortcutMonitor.GUI
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

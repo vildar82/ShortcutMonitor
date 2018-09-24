@@ -1,7 +1,4 @@
-﻿using System.Diagnostics;
-using NetLib.IO;
-
-namespace SortcutMonitor.GUI
+﻿namespace ShortcutMonitor.GUI
 {
     using System;
     using System.Collections.Generic;
@@ -14,21 +11,24 @@ namespace SortcutMonitor.GUI
     using Data;
     using JetBrains.Annotations;
     using NetLib;
+    using NetLib.IO;
     using NetLib.WPF;
     using ReactiveUI;
 
     public class MainVM : BaseViewModel
     {
+        private bool inUpdate;
         public ReactiveList<ShortcutItem> _elements { get; set; }
 
         public MainVM()
         {
             this.WhenAnyValue(v => v.ShortcutFolder).Delay(TimeSpan.FromMilliseconds(200))
                 .ObserveOn(dispatcher)
-                .Subscribe(s => Update());
+                .Subscribe(s => UpdateExecute());
             this.WhenAnyValue(v => v.Filter).Skip(1).Subscribe(s => Elements?.Reset());
             OpenProjectFolder = CreateCommand<ShortcutItem>(OpenProjectFolderExec);
             OpenSourceDwg = CreateCommand<ShortcutItem>(OpenSourceDwgExec);
+            Update = CreateCommand(UpdateExecute);
         }
 
         public string ShortcutFolder { get; set; } = @"\\picompany.ru\root\ecp_wip\C3D_Projects";
@@ -38,37 +38,48 @@ namespace SortcutMonitor.GUI
         public IReactiveDerivedList<ShortcutItem> Elements { get; set; }
         public ReactiveCommand OpenProjectFolder { get; set; }
         public ReactiveCommand OpenSourceDwg { get; set; }
+        public ReactiveCommand Update { get; set; }
 
-        private async void Update()
+        private async void UpdateExecute()
         {
-            var files = new List<FileInfo>();
-            await ShowProgressDialog(c =>
+            try
             {
-                c.SetIndeterminate();
-                if (ShortcutFolder == null || !Directory.Exists(ShortcutFolder))
+                if (inUpdate)
+                    return;
+                inUpdate = true;
+                var files = new List<FileInfo>();
+                await ShowProgressDialog(c =>
                 {
-                    _elements = null;
+                    c.SetIndeterminate();
+                    if (ShortcutFolder == null || !Directory.Exists(ShortcutFolder))
+                    {
+                        _elements = null;
+                        return;
+                    }
+
+                    files = GetShortcutFiles(ShortcutFolder).Result;
+                }, "Загрузка элементов...", "", false);
+
+                if (!files.Any())
+                {
+                    ShowMessage("Не найдены файлы быстрых ссылок (xml)");
                     return;
                 }
 
-                files = GetShortcutFiles(ShortcutFolder).Result;
-            }, "Загрузка элементов...", "", false);
-
-            if (!files.Any())
-            {
-                ShowMessage("Не найдены файлы быстрых ссылок (xml)");
-                return;
-            }
-
-            _elements = new ReactiveList<ShortcutItem>();
-            Elements = _elements.CreateDerivedCollection(s => s, OnFilter);
-            foreach (var xmls in files.ChunkBy(50))
-            {
-                var items = await GetShortcutItem(xmls);
-                using (_elements.SuppressChangeNotifications())
+                _elements = new ReactiveList<ShortcutItem>();
+                Elements = _elements.CreateDerivedCollection(s => s, OnFilter);
+                foreach (var xmls in files.ChunkBy(50))
                 {
-                    items.ForEach(i => _elements.Add(i));
+                    var items = await GetShortcutItem(xmls);
+                    using (_elements.SuppressChangeNotifications())
+                    {
+                        items.ForEach(i => _elements.Add(i));
+                    }
                 }
+            }
+            finally
+            {
+                inUpdate = false;
             }
         }
 

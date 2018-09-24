@@ -1,7 +1,7 @@
-﻿namespace SortcutMonitor.GUI.Xml
-{
-    using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 
+namespace ShortcutMonitor.GUI.Xml
+{
     /// <summary>
     /// Файл элемента быстрой ссылки
     /// </summary>

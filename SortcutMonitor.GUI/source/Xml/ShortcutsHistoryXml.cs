@@ -1,4 +1,4 @@
-﻿namespace SortcutMonitor.GUI.Xml
+﻿namespace ShortcutMonitor.GUI.Xml
 {
     /// <summary>
     /// Файл ShortcutsHistory.xml
