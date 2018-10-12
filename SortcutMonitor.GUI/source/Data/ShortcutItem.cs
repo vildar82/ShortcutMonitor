@@ -1,20 +1,28 @@
-﻿using System.IO;
-using JetBrains.Annotations;
-using NetLib;
-using NetLib.Monad;
-using ShortcutMonitor.GUI.Xml;
-
-namespace ShortcutMonitor.GUI.Data
+﻿namespace ShortcutMonitor.GUI.Data
 {
+    using System;
+    using System.IO;
+    using System.Reactive.Linq;
+    using System.Windows.Media;
+    using JetBrains.Annotations;
+    using NetLib;
+    using NetLib.Monad;
+    using NetLib.WPF;
+    using ReactiveUI;
+    using ToastNotifications.Messages;
+    using Xml;
+
     /// <summary>
     /// Элемент быстрой ссылки
     /// </summary>
-    public class ShortcutItem
+    public class ShortcutItem : BaseModel, IEventItem
     {
         public ShortcutItem([NotNull] FileInfo xmlFile)
         {
-            XmlFile = xmlFile;
-            Project = new Project(xmlFile.Directory.Parent.Parent);
+            XmlFile = xmlFile.FullName;
+            XmlFileName = xmlFile.Name;
+            LastWriteDate = xmlFile.LastWriteTime;
+            Project = Project.GetProject(xmlFile.Directory.Parent.Parent, true);
             Group = xmlFile.Directory.Name;
             Author = xmlFile.FullName.Try(f =>
                 System.IO.File.GetAccessControl(f).GetOwner(typeof(System.Security.Principal.NTAccount)).ToString());
@@ -44,9 +52,16 @@ namespace ShortcutMonitor.GUI.Data
         /// <summary>
         /// Файл описания быстрой ссылки
         /// </summary>
-        public FileInfo XmlFile { get; set; }
+        public string XmlFile { get; set; }
+
+        /// <summary>
+        /// Файл описания быстрой ссылки
+        /// </summary>
+        public string XmlFileName { get; set; }
 
         public string Author { get; set; }
+
+        public DateTime LastWriteDate { get; set; }
 
         /// <summary>
         /// Shortcut name
@@ -85,10 +100,54 @@ namespace ShortcutMonitor.GUI.Data
         /// </summary>
         public string ElementLayer { get; set; }
 
+        public ReactiveList<string> Events { get; set; } = new ReactiveList<string>();
+
+        public Brush Background { get; set; }
+        public bool IsDeleted { get; set; }
+
         /// <inheritdoc />
         public override string ToString()
         {
             return $"{Project?.Name} {ElementName} {Group} {Author} {SourceDwg}";
+        }
+
+        private void ShortcutChanged(FileSystemEventArgs e)
+        {
+            var item = new ShortcutItem(new FileInfo(e.FullPath));
+            if (item.XmlFileName != XmlFileName)
+            {
+                var msg = $"Переименован файл '{XmlFileName}' -> '{item.XmlFileName}'.";
+                Events.Add(msg);
+                Background = MainVM.eventBackground;
+                MainVM.Notify.ShowWarning($"{msg} {Project.Name}.");
+                XmlFile = item.XmlFile;
+                XmlFileName = item.XmlFileName;
+            }
+
+            if (item.Name != Name)
+            {
+                var msg = $"Переименован ключ '{Name}' -> '{item.Name}'.";
+                Events.Add(msg);
+                Background = MainVM.eventBackground;
+                MainVM.Notify.ShowWarning($"{msg} {Project.Name}.");
+                Name = item.Name;
+            }
+
+            if (item.ElementName != ElementName)
+            {
+                var msg = $"Переименован объект '{ElementName}' -> '{item.ElementName}'.";
+                Events.Add(msg);
+                Background = MainVM.eventBackground;
+                MainVM.Notify.ShowWarning($"{msg} {Project.Name}.");
+            }
+
+            if (item.SourceDwg != SourceDwg)
+            {
+                var msg = $"Переименован источник '{SourceDwg}' -> '{item.SourceDwg}'.";
+                Events.Add(msg);
+                Background = MainVM.eventBackground;
+                MainVM.Notify.ShowWarning($"{msg} {Project.Name}.");
+            }
         }
     }
 }

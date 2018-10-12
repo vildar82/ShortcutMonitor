@@ -28,7 +28,7 @@
     <MapFileExtensions>true</MapFileExtensions>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>15</ApplicationRevision>
+    <ApplicationRevision>22</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -89,11 +89,25 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="source\Data\IEventItem.cs" />
+    <Compile Include="source\Data\State.cs" />
+    <Compile Include="source\ElementsView.xaml.cs">
+      <DependentUpon>ElementsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="source\ElementsVM.cs" />
+    <Compile Include="source\ProjectsView.xaml.cs">
+      <DependentUpon>ProjectsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="source\ProjectsVM.cs" />
     <Compile Include="source\Xml\ShortcutFolderXml.cs" />
     <Compile Include="source\Data\ShortcutItem.cs" />
     <Compile Include="source\Xml\ShortcutsHistoryXml.cs" />
     <Compile Include="source\Data\Project.cs" />
     <Compile Include="source\Xml\ShortcutXml.cs" />
+    <Page Include="source\ElementsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="source\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -107,6 +121,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="source\ProjectsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -137,13 +155,19 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="NetLib">
-      <Version>1.0.267.551</Version>
+      <Version>1.1.8</Version>
     </PackageReference>
     <PackageReference Include="PropertyChanged.Fody">
       <Version>2.5.11</Version>
     </PackageReference>
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2">
       <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="ToastNotifications">
+      <Version>2.3.4</Version>
+    </PackageReference>
+    <PackageReference Include="ToastNotifications.Messages">
+      <Version>2.3.4</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

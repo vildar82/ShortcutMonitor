@@ -2,50 +2,85 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Reactive.Linq;
     using System.Text.RegularExpressions;
-    using System.Threading;
     using System.Threading.Tasks;
+    using System.Windows.Media;
     using Data;
     using JetBrains.Annotations;
     using NetLib;
     using NetLib.IO;
     using NetLib.WPF;
     using ReactiveUI;
+    using ToastNotifications;
+    using ToastNotifications.Lifetime;
+    using ToastNotifications.Messages;
+    using ToastNotifications.Position;
 
     public class MainVM : BaseViewModel
     {
         private bool inUpdate;
-        public ReactiveList<ShortcutItem> _elements { get; set; }
+        public static readonly Brush eventBackground = new SolidColorBrush(Colors.Yellow);
+        public static readonly Brush eventNewBackground = new SolidColorBrush(Colors.LimeGreen);
+        public static readonly Brush eventDeleteBackground = new SolidColorBrush(Colors.SandyBrown);
+        private FileWatcherRx projectWatcher;
+        public static ReactiveList<ShortcutItem> AllElements { get; set; }
+        public static ReactiveList<Project> AllProjects { get; set; }
 
         public MainVM()
         {
+            Notify = new Notifier(cfg =>
+            {
+                cfg.PositionProvider = new PrimaryScreenPositionProvider(
+                    corner: Corner.TopRight,
+                    offsetX: 10,
+                    offsetY: 30);
+
+                cfg.LifetimeSupervisor = new CountBasedLifetimeSupervisor(
+                    maximumNotificationCount: MaximumNotificationCount.UnlimitedNotifications());
+
+                cfg.DisplayOptions.Width = 800;
+
+                cfg.Dispatcher = dispatcher;
+            });
             this.WhenAnyValue(v => v.ShortcutFolder).Delay(TimeSpan.FromMilliseconds(200))
                 .ObserveOn(dispatcher)
                 .Subscribe(s => UpdateExecute());
-            this.WhenAnyValue(v => v.Filter).Skip(1).Subscribe(s => Elements?.Reset());
-            OpenProjectFolder = CreateCommand<ShortcutItem>(OpenProjectFolderExec);
-            OpenSourceDwg = CreateCommand<ShortcutItem>(OpenSourceDwgExec);
             Update = CreateCommand(UpdateExecute);
+            ElementsVM = new ElementsVM(this);
+            ProjectsVM = new ProjectsVM(this);
         }
 
+#if DEBUG
+        public string ShortcutFolder { get; set; } = @"c:\temp\ГП\C3D_Projects";
+#else
         public string ShortcutFolder { get; set; } = @"\\picompany.ru\root\ecp_wip\C3D_Projects";
+#endif
 
-        public string Filter { get; set; }
+        public ElementsVM ElementsVM { get; set; }
 
-        public IReactiveDerivedList<ShortcutItem> Elements { get; set; }
-        public ReactiveCommand OpenProjectFolder { get; set; }
-        public ReactiveCommand OpenSourceDwg { get; set; }
+        public ProjectsVM ProjectsVM { get; set; }
+
         public ReactiveCommand Update { get; set; }
+
+        public static Notifier Notify { get; set; }
 
         private async void UpdateExecute()
         {
             try
             {
-                if (inUpdate)
+                projectWatcher?.Watcher?.Dispose();
+                if (inUpdate || !Directory.Exists(ShortcutFolder))
                     return;
+                projectWatcher = new FileWatcherRx(ShortcutFolder, "", (NotifyFilters) 19, WatcherChangeTypes.All);
+                projectWatcher.Watcher.IncludeSubdirectories = true;
+                projectWatcher.Created.ObserveOn(dispatcher).Subscribe(s => OnCreatedProject(s.EventArgs));
+                projectWatcher.Deleted.ObserveOn(dispatcher).Subscribe(s => OnDeletedProject(s.EventArgs));
+                projectWatcher.Renamed.ObserveOn(dispatcher).Subscribe(s => OnRenamedProject(s.EventArgs));
+                projectWatcher.Changed.ObserveOn(dispatcher).Subscribe(s => OnChangedProject(s.EventArgs));
                 inUpdate = true;
                 var files = new List<FileInfo>();
                 await ShowProgressDialog(c =>
@@ -53,7 +88,8 @@
                     c.SetIndeterminate();
                     if (ShortcutFolder == null || !Directory.Exists(ShortcutFolder))
                     {
-                        _elements = null;
+                        AllElements = null;
+                        AllProjects = null;
                         return;
                     }
 
@@ -66,16 +102,28 @@
                     return;
                 }
 
-                _elements = new ReactiveList<ShortcutItem>();
-                Elements = _elements.CreateDerivedCollection(s => s, OnFilter);
+                AllElements = new ReactiveList<ShortcutItem>();
+                ElementsVM.UpdateElements();
                 foreach (var xmls in files.ChunkBy(50))
                 {
-                    var items = await GetShortcutItem(xmls);
-                    using (_elements.SuppressChangeNotifications())
+                    var items = await GetShortcutItems(xmls);
+                    using (AllElements.SuppressChangeNotifications())
                     {
-                        items.ForEach(i => _elements.Add(i));
+                        foreach (var i in items)
+                        {
+                            i.Project.Shortcuts.Add(i);
+                            AllElements.Add(i);
+                        }
                     }
                 }
+
+                var projects = Project.GetProjects();
+                AllProjects = new ReactiveList<Project>(projects);
+                ProjectsVM.UpdateProjects();
+            }
+            catch (Exception ex)
+            {
+                ShowMessage(ex.ToString());
             }
             finally
             {
@@ -83,49 +131,96 @@
             }
         }
 
-        private Task<List<FileInfo>> GetShortcutFiles(string shortcutFolder)
+        public static Task<List<FileInfo>> GetShortcutFiles(string shortcutFolder)
         {
             return Task.Run(() =>
             {
-                var di = new DirectoryInfo(ShortcutFolder);
-                return di.EnumerateFiles("*.xml", SearchOption.AllDirectories)
-                    .Where(IsShortcutXml)
-                    .OrderByDescending(o => o.LastWriteTime).ToList();
+                try
+                {
+                    var di = new DirectoryInfo(shortcutFolder);
+                    return di.EnumerateFiles("*.xml", SearchOption.AllDirectories)
+                        .Where(IsShortcutXml)
+                        .OrderByDescending(o => o.LastWriteTime).ToList();
+                }
+                catch
+                {
+                    return new List<FileInfo>();
+                }
             });
         }
 
-        private bool IsShortcutXml(FileInfo xmlFile)
+        private static bool IsShortcutXml(FileInfo xmlFile)
         {
             return xmlFile?.Directory?.Parent?.Name == "_Shortcuts";
         }
 
         [NotNull]
-        private Task<List<ShortcutItem>> GetShortcutItem([NotNull] IEnumerable<FileInfo> xmlFiles)
+        public static Task<List<ShortcutItem>> GetShortcutItems([NotNull] IEnumerable<FileInfo> xmlFiles)
         {
-            return Task.Run(() =>
-            {
-                Thread.Sleep(50);
-                return xmlFiles.Select(s => new ShortcutItem(s)).ToList();
-            });
+            return Task.Run(() => { return xmlFiles.Select(s => new ShortcutItem(s)).ToList(); });
         }
 
-        private bool OnFilter(ShortcutItem item)
+        private async void OnCreatedProject(FileSystemEventArgs e)
         {
-            if (Filter.IsNullOrEmpty() || item == null)
-                return true;
-            return Regex.IsMatch(item.ToString(), Filter, RegexOptions.IgnoreCase);
+            Debug.WriteLine($"OnCreatedProject - {e.Name}, {e.FullPath}.");
+
+            //// Событие создания проекта
+            //Notify.ShowSuccess($"Создан проект: {e.Name}, {DateTime.Now}.");
+            //var project = Project.GetProject(new DirectoryInfo(e.FullPath), true);
+            //var xmlFiles = await GetShortcutFiles(e.FullPath);
+            //var items = await GetShortcutItems(xmlFiles);
+            //if (items.Count == 0)
+            //{
+            //    project.SubscribeShortcutsFolder();
+            //}
+            //else
+            //{
+            //    foreach (var i in items)
+            //    {
+            //        i.Background = eventNewBackground;
+            //        i.Events.Add($"Создан {DateTime.Now}");
+            //        AllElements.Insert(0, i);
+            //    }
+            //}
         }
 
-        private void OpenProjectFolderExec(ShortcutItem item)
+        private void OnDeletedProject(FileSystemEventArgs e)
         {
-            var dir = item.Project.Dir.FullName;
-            dir.StartExplorer();
+            Debug.WriteLine($"OnDeletedProject - {e.Name}, {e.FullPath}.");
+
+            //// Событие удаления проекта
+            //var msg = $"Удален проект: {e.Name}, {DateTime.Now}.";
+            //Notify.ShowError(msg);
+            //if (Project.Projects.TryGetValue(e.Name, out var project))
+            //{
+            //    project.Events.Add(msg);
+            //    project.Background = eventDeleteBackground;
+            //    project.Shortcuts = new List<ShortcutItem>();
+            //}
         }
 
-        private void OpenSourceDwgExec(ShortcutItem item)
+        private void OnRenamedProject(RenamedEventArgs e)
         {
-            var file = item.SourceDwg;
-            file.StartExplorer();
+            Debug.WriteLine($"OnRenamedProject - {e.OldName}->{e.Name}, {e.FullPath}.");
+
+            //// Событие переименования проекта
+            //var msg = $"Переименован проект: {e.OldName} -> {e.Name}, {DateTime.Now}.";
+            //Notify.ShowWarning(msg);
+            //if (Project.Projects.TryGetValue(e.OldName, out var project))
+            //{
+            //    project.Name = e.Name;
+            //    project.Dir = e.FullPath;
+            //    project.Events.Add(msg);
+            //    project.Background = eventBackground;
+            //}
+        }
+
+        private void OnChangedProject(FileSystemEventArgs e)
+        {
+            Debug.WriteLine($"OnChangedProject - {e.Name}, {e.FullPath}.");
+
+            //var msg = $"OnChangedProject: {e.Name}, {e.FullPath}, {DateTime.Now}.";
+            //Notify.ShowWarning(msg);
         }
     }
 }

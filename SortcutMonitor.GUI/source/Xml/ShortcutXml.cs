@@ -21,11 +21,13 @@ namespace ShortcutMonitor.GUI.Xml
     {
         public DwgRelPath DwgRelPath { get; set; }
         public Criteria Criteria { get; set; }
+        [XmlAttribute(AttributeName="name")]
         public string Name { get; set; }
     }
 
     public class DwgRelPath
     {
+        [XmlAttribute(AttributeName="path")]
         public string Path { get; set; }
     }
 

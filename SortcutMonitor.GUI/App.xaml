@@ -1,8 +1,89 @@
 ﻿<Application x:Class="ShortcutMonitor.GUI.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:data="clr-namespace:ShortcutMonitor.GUI.Data"
              StartupUri="source/MainWindow.xaml">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/ToastNotifications.Messages;component/Themes/Default.xaml" />
+                <ResourceDictionary>
+                    <DataTemplate DataType="{x:Type data:State}">
+                        <TextBlock Text="{Binding Status}" Foreground="{Binding Color}" ToolTip="{Binding Msg}" FontSize="12"
+                                   FontWeight="Bold"/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type data:IEventItem}">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Автор: " />
+                                <TextBlock Text="{Binding Author}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Дата: " />
+                                <TextBlock Text="{Binding LastWriteDate}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Файл: " />
+                                <TextBlock Text="{Binding XmlFile}" />
+                            </StackPanel>
+                            <TextBlock Text="События:" />
+                            <ListBox ItemsSource="{Binding Events}" />
+                        </StackPanel>
+                    </DataTemplate>
+                    <ToolTip x:Key="EventTooltip" DataContext="{Binding Path=PlacementTarget.DataContext, RelativeSource={x:Static RelativeSource.Self}}" >
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Файл xml: " />
+                                <TextBlock Text="{Binding XmlFile.Name}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Имя быстрой ссылки: " />
+                                <TextBlock Text="{Binding Name}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Автор: " />
+                                <TextBlock Text="{Binding Author}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Файл: " />
+                                <TextBlock Text="{Binding XmlFile}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Дата: " />
+                                <TextBlock Text="{Binding LastWriteDate, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" />
+                            </StackPanel>
+                            <TextBlock Text="События:" />
+                            <ListBox ItemsSource="{Binding Events}" />
+                        </StackPanel>
+                    </ToolTip>
+                    <ToolTip x:Key="ProjectTooltip" DataContext="{Binding Path=PlacementTarget.DataContext, RelativeSource={x:Static RelativeSource.Self}}" >
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="UUid: " />
+                            <TextBlock Text="{Binding Uuid}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Описание: " />
+                            <TextBlock Text="{Binding Description}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Автор: " />
+                            <TextBlock Text="{Binding Author}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Дата: " />
+                            <TextBlock Text="{Binding LastWriteDate, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Файл: " />
+                            <TextBlock Text="{Binding Dir}" />
+                        </StackPanel>
+                        <TextBlock Text="События:" />
+                        <ListBox ItemsSource="{Binding Events}" />
+                    </StackPanel>
+                    </ToolTip>
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

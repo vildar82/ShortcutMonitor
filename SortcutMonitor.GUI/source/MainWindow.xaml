@@ -17,65 +17,13 @@
     Name="Win"
     Title="Быстрые ссылки" Height="450" Width="800">
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition />
-        </Grid.RowDefinitions>
-        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center">
-            <TextBox Text="{Binding Filter, Delay=350, UpdateSourceTrigger=PropertyChanged}"
-                     Style="{StaticResource TbFilter}"
-                     Margin="0,0,20,0" VerticalAlignment="Center"/>
-            <controls:PathSelector SelectedPath="{Binding ShortcutFolder}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <TextBlock Text="{Binding Elements.Count}" ToolTip="Кол-во элементов в списке" Margin="20,0,0,0"
-                       VerticalAlignment="Center" />
-            <Button Margin="10,1,1,1" Content="{iconPacks:Material Update}" Command="{Binding Update}"/>
-        </StackPanel>
-        <DataGrid Grid.Row="1" ItemsSource="{Binding Elements}" AutoGenerateColumns="False" IsReadOnly="True">
-            <DataGrid.Columns>
-                <DataGridTemplateColumn Header="Проект">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate DataType="data:ShortcutItem">
-                            <TextBlock Text="{Binding Project.Name}"
-                                       ToolTip="{Binding Project.Dir.LastWriteTime}">
-                                <TextBlock.InputBindings>
-                                    <MouseBinding Gesture="LeftDoubleClick"
-                                                  Command="{Binding DataContext.OpenProjectFolder, ElementName=Win}"
-                                                  CommandParameter="{Binding}" />
-                                </TextBlock.InputBindings>
-                            </TextBlock>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTextColumn Header="Тип" Binding="{Binding Group}" />
-                <DataGridTextColumn Header="Имя" Binding="{Binding ElementName}" />
-                <DataGridTextColumn Header="Дата"
-                                    Binding="{Binding XmlFile.LastWriteTime, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" />
-                <DataGridTextColumn Header="Автор" Binding="{Binding Author}" />
-                <DataGridTemplateColumn Header="DWG">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate DataType="data:ShortcutItem">
-                            <TextBlock Text="{Binding SourceDwg}"
-                                       ToolTip="{Binding SourceDwg}">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding SourceDwgValid}"
-                                                         Value="False">
-                                                <Setter Property="Foreground" Value="Red" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                                <TextBlock.InputBindings>
-                                    <MouseBinding Gesture="LeftDoubleClick"
-                                                  Command="{Binding DataContext.OpenSourceDwg, ElementName=Win}"
-                                                  CommandParameter="{Binding}" />
-                                </TextBlock.InputBindings>
-                            </TextBlock>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-        </DataGrid>
+        <TabControl>
+            <TabItem Header="Элементы">
+                <gui:ElementsView DataContext="{Binding ElementsVM}"/>
+            </TabItem>
+            <TabItem Header="Проекты">
+                <gui:ProjectsView DataContext="{Binding ProjectsVM}"/>
+            </TabItem>
+        </TabControl>
     </Grid>
 </wpf:BaseWindow>

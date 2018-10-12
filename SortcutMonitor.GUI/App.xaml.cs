@@ -1,7 +1,7 @@
-﻿using System.Windows;
-
-namespace ShortcutMonitor.GUI
+﻿namespace ShortcutMonitor.GUI
 {
+    using System.Windows;
+
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
