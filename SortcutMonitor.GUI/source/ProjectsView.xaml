@@ -7,6 +7,9 @@
     xmlns:gui="clr-namespace:ShortcutMonitor.GUI"
     xmlns:wpf="clr-namespace:NetLib.WPF;assembly=NetLib"
     xmlns:data="clr-namespace:ShortcutMonitor.GUI.Data"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:converters="clr-namespace:NetLib.WPF.Converters;assembly=NetLib"
     d:DataContext="{d:DesignInstance gui:ProjectsVM}"
     Name="Proj"
     mc:Ignorable="d">
@@ -59,8 +62,14 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate DataType="data:State">
                                             <StackPanel Orientation="Horizontal" ToolTip="{Binding Msg}">
-                                                <TextBlock Text="{Binding Status}" Foreground="{Binding Color}" FontWeight="Bold"/>
+                                                <TextBlock Text="{Binding Status}" Foreground="{Binding Color}" FontWeight="Bold" VerticalAlignment="Center"/>
                                                 <TextBlock Text="{Binding Title}" VerticalAlignment="Center" Margin="5,1,1,1"/>
+                                                <Button Content="{iconPacks:Material AutoFix}" Command="{Binding DataContext.FixCmd, ElementName=Proj}"
+                                                        CommandParameter="{Binding}" Visibility="{Binding Fix, Converter={converters:NullVisibilityConverter}}"
+                                                        ToolTip="Исправить" Padding="1" Margin="1" Height="25" Width="25"/>
+                                                <Button Content="{iconPacks:Material Email}" Command="{Binding DataContext.SendEmail, ElementName=Proj}"
+                                                        CommandParameter="{Binding}" mah:VisibilityHelper.IsVisible="{Binding IsEmailErr}"
+                                                        ToolTip="Написать письмо" Padding="1" Margin="1" Height="25" Width="25"/>
                                                 <StackPanel.InputBindings>
                                                     <MouseBinding Gesture="LeftDoubleClick"
                                                                   Command="{Binding DataContext.OpenSourceFolder, ElementName=Proj}"

@@ -1,7 +1,7 @@
-﻿using System.Xml.Serialization;
-
-namespace ShortcutMonitor.GUI.Xml
+﻿namespace ShortcutMonitor.GUI.Xml
 {
+    using System.Xml.Serialization;
+
     /// <summary>
     /// Файл элемента быстрой ссылки
     /// </summary>
@@ -21,13 +21,13 @@ namespace ShortcutMonitor.GUI.Xml
     {
         public DwgRelPath DwgRelPath { get; set; }
         public Criteria Criteria { get; set; }
-        [XmlAttribute(AttributeName="name")]
+        [XmlAttribute(AttributeName = "name")]
         public string Name { get; set; }
     }
 
     public class DwgRelPath
     {
-        [XmlAttribute(AttributeName="path")]
+        [XmlAttribute(AttributeName = "path")]
         public string Path { get; set; }
     }
 
@@ -40,42 +40,61 @@ namespace ShortcutMonitor.GUI.Xml
 
     public class File
     {
-        [XmlAttribute(AttributeName="name")]
+        [XmlAttribute(AttributeName = "name")]
         public string Name { get; set; }
     }
 
     public class Object
     {
-        [XmlAttribute(AttributeName="objectDescription")]
+        [XmlAttribute(AttributeName = "objectDescription")]
         public string ObjectDescription { get; set; }
-        [XmlAttribute(AttributeName="type")]
+        [XmlAttribute(AttributeName = "type")]
         public string Type { get; set; }
+        [XmlAttribute(AttributeName = "useType")]
         public string UseType { get; set; }
-        [XmlAttribute(AttributeName="name")]
+        [XmlAttribute(AttributeName = "name")]
         public string Name { get; set; }
+        [XmlAttribute(AttributeName = "useName")]
         public string UseName { get; set; }
+        [XmlAttribute(AttributeName = "version")]
         public string Version { get; set; }
+        [XmlAttribute(AttributeName = "useVersion")]
         public string UseVersion { get; set; }
+        [XmlAttribute(AttributeName = "handleLow")]
         public string HandleLow { get; set; }
+        [XmlAttribute(AttributeName = "handleHigh")]
         public string HandleHigh { get; set; }
+        [XmlAttribute(AttributeName = "useHandle")]
         public string UseHandle { get; set; }
+        [XmlAttribute(AttributeName = "parentHandleHigh")]
         public string ParentHandleHigh { get; set; }
+        [XmlAttribute(AttributeName = "parentHandleLow")]
         public string ParentHandleLow { get; set; }
+        [XmlAttribute(AttributeName = "parentAlignmentShortcutName")]
         public string ParentAlignmentShortcutName { get; set; }
+        [XmlAttribute(AttributeName = "lastValidateResult")]
         public string LastValidateResult { get; set; }
+        [XmlAttribute(AttributeName = "visable")]
         public string Visable { get; set; }
     }
 
     public class DisplayProperties
     {
-        [XmlAttribute(AttributeName="layer")]
+        [XmlAttribute(AttributeName = "layer")]
         public string Layer { get; set; }
+        [XmlAttribute(AttributeName = "useLayer")]
         public string UseLayer { get; set; }
+        [XmlAttribute(AttributeName = "color")]
         public string Color { get; set; }
+        [XmlAttribute(AttributeName = "useColor")]
         public string UseColor { get; set; }
+        [XmlAttribute(AttributeName = "lineType")]
         public string LineType { get; set; }
+        [XmlAttribute(AttributeName = "useLineType")]
         public string UseLineType { get; set; }
+        [XmlAttribute(AttributeName = "lineWeight")]
         public string LineWeight { get; set; }
+        [XmlAttribute(AttributeName = "useLineWeight")]
         public string UseLineWeight { get; set; }
     }
 }

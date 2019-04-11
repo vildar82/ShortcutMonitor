@@ -1,14 +1,13 @@
 ﻿namespace ShortcutMonitor.GUI.Data
 {
     using System;
+    using System.Collections.ObjectModel;
     using System.IO;
-    using System.Reactive.Linq;
     using System.Windows.Media;
     using JetBrains.Annotations;
     using NetLib;
     using NetLib.Monad;
     using NetLib.WPF;
-    using ReactiveUI;
     using ToastNotifications.Messages;
     using Xml;
 
@@ -26,18 +25,13 @@
             Group = xmlFile.Directory.Name;
             Author = xmlFile.FullName.Try(f =>
                 System.IO.File.GetAccessControl(f).GetOwner(typeof(System.Security.Principal.NTAccount)).ToString());
-            var shortcutXml = xmlFile.FullName.Try(f => f?.FromXml<ProjectInfo>());
-            var shc = shortcutXml?.Shortcuts?.Shortcut;
+            ProjectXml = xmlFile.FullName.Try(f => f?.FromXml<ProjectInfo>());
+            var shc = ProjectXml?.Shortcuts?.Shortcut;
             if (shc != null)
             {
                 Name = shc.Name;
                 DwgRelPath = shc.DwgRelPath?.Path;
                 SourceDwg = shc.Criteria?.File?.Name;
-                if (!SourceDwg.IsNullOrEmpty())
-                {
-                    SourceDwgValid = !Path.GetPathRoot(SourceDwg).EqualsIgnoreCase(@"W:\") && NetLib.IO.Path.FileExists(SourceDwg);
-                }
-
                 var obj = shc.Criteria?.Object;
                 ElementName = obj?.Name;
                 ElementType = obj?.Type;
@@ -46,6 +40,7 @@
             }
         }
 
+        public ProjectInfo ProjectXml { get; set; }
         public Project Project { get; set; }
         public string Group { get; set; }
 
@@ -58,9 +53,7 @@
         /// Файл описания быстрой ссылки
         /// </summary>
         public string XmlFileName { get; set; }
-
         public string Author { get; set; }
-
         public DateTime LastWriteDate { get; set; }
 
         /// <summary>
@@ -79,6 +72,7 @@
         public string SourceDwg { get; set; }
 
         public bool SourceDwgValid { get; set; }
+        public string SourceDwgErr { get; set; }
 
         /// <summary>
         /// Название элемента быстрой ссылки - имя поверхности и т.п.
@@ -99,11 +93,10 @@
         /// Слой элемента
         /// </summary>
         public string ElementLayer { get; set; }
-
-        public ReactiveList<string> Events { get; set; } = new ReactiveList<string>();
-
+        public ObservableCollection<string> Events { get; set; } = new ObservableCollection<string>();
         public Brush Background { get; set; }
         public bool IsDeleted { get; set; }
+        public bool HasError { get; set; }
 
         /// <inheritdoc />
         public override string ToString()

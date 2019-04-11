@@ -1,4 +1,10 @@
-﻿namespace ShortcutMonitor.GUI
+﻿using System.Collections.ObjectModel;
+using System.Net.Mail;
+using System.Reactive;
+using DynamicData;
+using ShortcutMonitor.GUI.Model;
+
+namespace ShortcutMonitor.GUI
 {
     using System;
     using System.Reactive.Linq;
@@ -11,29 +17,34 @@
 
     public class ElementsVM : BaseModel
     {
+        private IObservable<string> filterObs;
+
         public ElementsVM(MainVM mainVm)
             : base(mainVm)
         {
-            this.WhenAnyValue(v => v.Filter).Skip(1).Subscribe(s => Elements?.Reset());
+            filterObs = this.WhenAnyValue(v => v.Filter);
             OpenProjectFolder = CreateCommand<ShortcutItem>(OpenProjectFolderExec);
             OpenSourceDwg = CreateCommand<ShortcutItem>(OpenSourceDwgExec);
+            OpenAutor = CreateCommand<string>(OpenAutorExec);
+            MainVM.AllElements.Connect().AutoRefreshOnObservable(f => filterObs)
+                .Filter(OnFilter)
+                .Bind(out var data)
+                .Subscribe();
+            Elements = data;
+            Email = CreateCommand<ShortcutItem>(EmailExec);
         }
 
         public string Filter { get; set; }
-        public IReactiveDerivedList<ShortcutItem> Elements { get; set; }
-        public ReactiveCommand OpenProjectFolder { get; set; }
-        public ReactiveCommand OpenSourceDwg { get; set; }
-        public ReactiveCommand OpenElementFolder { get; set; }
-
-        public void UpdateElements()
-        {
-            Elements = MainVM.AllElements.CreateDerivedCollection(s => s, OnFilter);
-        }
+        public ReadOnlyObservableCollection<ShortcutItem> Elements { get; set; }
+        public ReactiveCommand<ShortcutItem, Unit> OpenProjectFolder { get; set; }
+        public ReactiveCommand<ShortcutItem, Unit> OpenSourceDwg { get; set; }
+        public ReactiveCommand<Unit, Unit> OpenElementFolder { get; set; }
+        public ReactiveCommand<string, Unit> OpenAutor { get; set; }
+        public ReactiveCommand<ShortcutItem, Unit> Email { get; set; }
 
         private bool OnFilter(ShortcutItem item)
         {
-            if (Filter.IsNullOrEmpty() || item == null)
-                return true;
+            if (Filter.IsNullOrEmpty() || item == null) return true;
             return Regex.IsMatch(item.ToString(), Filter, RegexOptions.IgnoreCase);
         }
 
@@ -47,6 +58,27 @@
         {
             var file = item.SourceDwg;
             file.StartExplorer();
+        }
+
+        private void OpenAutorExec(string autor)
+        {
+            var login = Helper.GetLogin(autor);
+            if (login.IsNullOrEmpty()) return;
+            System.Diagnostics.Process.Start($"https://home.pik.ru/search?k={login}");
+        }
+
+        private void EmailExec(ShortcutItem item)
+        {
+            var mail = new MailMessage();
+            var login = Helper.GetLogin(item.Author);
+            if (login.IsNullOrEmpty()) return;
+            mail.IsBodyHtml = true;
+            mail.To.Add($"{login}@pik.ru");
+            mail.Subject = $"Ошибка в пути файла быстрой ссылки '{item.ElementName}' {item.Project.Name}";
+            mail.Body = $@"Проект: {item.Project.Name}%0A
+Файл быстрой ссылки: {item.SourceDwg}%0A
+Исправить ошибку: {item.SourceDwgErr}";
+            mail.MailTo();
         }
     }
 }

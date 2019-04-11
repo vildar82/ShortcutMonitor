@@ -1,11 +1,13 @@
 ﻿namespace ShortcutMonitor.GUI.Data
 {
+    using System;
     using System.Windows.Media;
+    using NetLib.WPF;
 
-    public class State
+    public class State : BaseModel
     {
-        private static readonly Brush colorOk = new SolidColorBrush(Colors.Green);
-        private static readonly Brush colorErr = new SolidColorBrush(Colors.Red);
+        public static readonly Brush colorOk = new SolidColorBrush(Colors.Green);
+        public static readonly Brush colorErr = new SolidColorBrush(Colors.Red);
 
         private State()
         {
@@ -16,6 +18,8 @@
         public Brush Color { get; set; }
         public string Msg { get; set; }
         public string Title { get; set; }
+        public bool IsEmailErr { get; set; }
+        public Action<State> Fix { get; set; }
 
         public static State Ok(ShortcutItem item, string title, string msg)
         {
@@ -29,7 +33,7 @@
             };
         }
 
-        public static State Error(ShortcutItem item, string title, string msg)
+        public static State Error(ShortcutItem item, string title, string msg, bool isEmailErr = false, Action<State> fix = null)
         {
             return new State
             {
@@ -37,7 +41,9 @@
                 Color = colorErr,
                 Status = "Error",
                 Msg = msg,
-                Title = title
+                Title = title,
+                IsEmailErr = isEmailErr,
+                Fix = fix
             };
         }
     }

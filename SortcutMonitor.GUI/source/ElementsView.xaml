@@ -8,6 +8,7 @@
     xmlns:controls="clr-namespace:NetLib.WPF.Controls;assembly=NetLib"
     xmlns:data="clr-namespace:ShortcutMonitor.GUI.Data"
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:wpf="clr-namespace:NetLib.WPF;assembly=NetLib"
     d:DataContext="{d:DesignInstance gui:ElementsVM}"
     Name="Elems"
@@ -26,7 +27,8 @@
             <TextBlock Text="{Binding Elements.Count}" ToolTip="Кол-во элементов в списке"
                        Margin="20,0,0,0"
                        VerticalAlignment="Center" />
-            <Button Margin="10,1,1,1" Content="{iconPacks:Material Update}" Command="{Binding BaseVm.Update}" />
+            <Button Margin="10,1,1,1" Content="{iconPacks:Material Update}" Command="{Binding BaseVm.Update}"
+                    ToolTip="Обновить"/>
         </StackPanel>
         <DataGrid Grid.Row="1" ItemsSource="{Binding Elements}" AutoGenerateColumns="False" IsReadOnly="True">
             <DataGrid.Columns>
@@ -84,13 +86,31 @@
                 </DataGridTemplateColumn>
                 <DataGridTextColumn Header="Дата"
                                     Binding="{Binding LastWriteDate, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" />
-                <DataGridTextColumn Header="Автор" Binding="{Binding Author}" />
+                <DataGridTemplateColumn Header="Автор">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate DataType="data:ShortcutItem">
+                            <TextBox Text="{Binding Author}" BorderThickness="0" IsReadOnly="True">
+                                <TextBox.InputBindings>
+                                    <MouseBinding Gesture="LeftDoubleClick"
+                                                  Command="{Binding DataContext.OpenAutor, ElementName=Elems}"
+                                                  CommandParameter="{Binding Author}">
+                                    </MouseBinding>
+                                </TextBox.InputBindings>
+                            </TextBox>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTemplateColumn Header="DWG" SortMemberPath="SourceDwg"
                                         ClipboardContentBinding="{Binding SourceDwg}">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate DataType="data:ShortcutItem">
-                            <TextBlock Text="{Binding SourceDwg}"
-                                       ToolTip="{Binding SourceDwg}">
+                            <TextBlock Text="{Binding SourceDwg}">
+                                <TextBlock.ToolTip>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding SourceDwg}"/>
+                                        <TextBlock Text="{Binding SourceDwgErr}"/>
+                                    </StackPanel>
+                                </TextBlock.ToolTip>
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
                                         <Style.Triggers>
@@ -107,6 +127,15 @@
                                                   CommandParameter="{Binding}" />
                                 </TextBlock.InputBindings>
                             </TextBlock>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Письмо">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate DataType="data:ShortcutItem">
+                            <Button Content="{iconPacks:Material Email}" Command="{Binding DataContext.Email, ElementName=Elems}"
+                                    mah:VisibilityHelper.IsVisible="{Binding HasError}"
+                                    CommandParameter="{Binding}" HorizontalAlignment="Center"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>

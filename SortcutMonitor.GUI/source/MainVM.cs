@@ -5,19 +5,19 @@
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
+    using System.Reactive;
     using System.Reactive.Linq;
-    using System.Text.RegularExpressions;
     using System.Threading.Tasks;
     using System.Windows.Media;
     using Data;
+    using DynamicData;
     using JetBrains.Annotations;
+    using Model;
     using NetLib;
-    using NetLib.IO;
     using NetLib.WPF;
     using ReactiveUI;
     using ToastNotifications;
     using ToastNotifications.Lifetime;
-    using ToastNotifications.Messages;
     using ToastNotifications.Position;
 
     public class MainVM : BaseViewModel
@@ -27,11 +27,13 @@
         public static readonly Brush eventNewBackground = new SolidColorBrush(Colors.LimeGreen);
         public static readonly Brush eventDeleteBackground = new SolidColorBrush(Colors.SandyBrown);
         private FileWatcherRx projectWatcher;
-        public static ReactiveList<ShortcutItem> AllElements { get; set; }
-        public static ReactiveList<Project> AllProjects { get; set; }
+        public static SourceList<ShortcutItem> AllElements { get; set; } = new SourceList<ShortcutItem>();
+        public static SourceList<Project> AllProjects { get; set; } = new SourceList<Project>();
 
         public MainVM()
         {
+            MainVm = this;
+            Checks = new Checks(this);
             Notify = new Notifier(cfg =>
             {
                 cfg.PositionProvider = new PrimaryScreenPositionProvider(
@@ -46,26 +48,24 @@
 
                 cfg.Dispatcher = dispatcher;
             });
+            ElementsVM = new ElementsVM(this);
+            ProjectsVM = new ProjectsVM(this);
             this.WhenAnyValue(v => v.ShortcutFolder).Delay(TimeSpan.FromMilliseconds(200))
                 .ObserveOn(dispatcher)
                 .Subscribe(s => UpdateExecute());
             Update = CreateCommand(UpdateExecute);
-            ElementsVM = new ElementsVM(this);
-            ProjectsVM = new ProjectsVM(this);
         }
 
+        public static MainVM MainVm { get; set; }
 #if DEBUG
         public string ShortcutFolder { get; set; } = @"c:\temp\ГП\C3D_Projects";
 #else
         public string ShortcutFolder { get; set; } = @"\\picompany.ru\root\ecp_wip\C3D_Projects";
 #endif
-
+        public static Checks Checks { get; set; }
         public ElementsVM ElementsVM { get; set; }
-
         public ProjectsVM ProjectsVM { get; set; }
-
-        public ReactiveCommand Update { get; set; }
-
+        public ReactiveCommand<Unit, Unit> Update { get; set; }
         public static Notifier Notify { get; set; }
 
         private async void UpdateExecute()
@@ -73,23 +73,23 @@
             try
             {
                 projectWatcher?.Watcher?.Dispose();
-                if (inUpdate || !Directory.Exists(ShortcutFolder))
-                    return;
-                projectWatcher = new FileWatcherRx(ShortcutFolder, "", (NotifyFilters) 19, WatcherChangeTypes.All);
-                projectWatcher.Watcher.IncludeSubdirectories = true;
-                projectWatcher.Created.ObserveOn(dispatcher).Subscribe(s => OnCreatedProject(s.EventArgs));
-                projectWatcher.Deleted.ObserveOn(dispatcher).Subscribe(s => OnDeletedProject(s.EventArgs));
-                projectWatcher.Renamed.ObserveOn(dispatcher).Subscribe(s => OnRenamedProject(s.EventArgs));
-                projectWatcher.Changed.ObserveOn(dispatcher).Subscribe(s => OnChangedProject(s.EventArgs));
+                if (inUpdate || !Directory.Exists(ShortcutFolder)) return;
+
+//                projectWatcher = new FileWatcherRx(ShortcutFolder, "", (NotifyFilters) 19, WatcherChangeTypes.All);
+//                projectWatcher.Watcher.IncludeSubdirectories = true;
+//                projectWatcher.Created.ObserveOn(dispatcher).Subscribe(s => OnCreatedProject(s.EventArgs));
+//                projectWatcher.Deleted.ObserveOn(dispatcher).Subscribe(s => OnDeletedProject(s.EventArgs));
+//                projectWatcher.Renamed.ObserveOn(dispatcher).Subscribe(s => OnRenamedProject(s.EventArgs));
+//                projectWatcher.Changed.ObserveOn(dispatcher).Subscribe(s => OnChangedProject(s.EventArgs));
                 inUpdate = true;
                 var files = new List<FileInfo>();
-                await ShowProgressDialog(c =>
+                AllElements.Clear();
+                AllProjects.Clear();
+                await ShowProgressDialog(async c =>
                 {
                     c.SetIndeterminate();
                     if (ShortcutFolder == null || !Directory.Exists(ShortcutFolder))
                     {
-                        AllElements = null;
-                        AllProjects = null;
                         return;
                     }
 
@@ -102,23 +102,18 @@
                     return;
                 }
 
-                AllElements = new ReactiveList<ShortcutItem>();
-                ElementsVM.UpdateElements();
                 foreach (var xmls in files.ChunkBy(50))
                 {
                     var items = await GetShortcutItems(xmls);
-                    using (AllElements.SuppressChangeNotifications())
+                    foreach (var i in items)
                     {
-                        foreach (var i in items)
-                        {
-                            i.Project.Shortcuts.Add(i);
-                            AllElements.Add(i);
-                        }
+                        i.Project.Shortcuts.Add(i);
+                        AllElements.Add(i);
                     }
                 }
 
                 var projects = Project.GetProjects();
-                AllProjects = new ReactiveList<Project>(projects);
+                AllProjects.AddRange(projects);
                 ProjectsVM.UpdateProjects();
             }
             catch (Exception ex)
@@ -157,13 +152,22 @@
         [NotNull]
         public static Task<List<ShortcutItem>> GetShortcutItems([NotNull] IEnumerable<FileInfo> xmlFiles)
         {
-            return Task.Run(() => { return xmlFiles.Select(s => new ShortcutItem(s)).ToList(); });
+            return Task.Run(() =>
+            {
+                return xmlFiles.Select(s =>
+                {
+                    var item = new ShortcutItem(s);
+                    item.SourceDwgValid = Checks.CheckElementFile(item.SourceDwg, out var err);
+                    item.SourceDwgErr   = err;
+                    if (!item.SourceDwgValid) item.HasError = true;
+                    return item;
+                }).ToList();
+            });
         }
 
         private async void OnCreatedProject(FileSystemEventArgs e)
         {
             Debug.WriteLine($"OnCreatedProject - {e.Name}, {e.FullPath}.");
-
             //// Событие создания проекта
             //Notify.ShowSuccess($"Создан проект: {e.Name}, {DateTime.Now}.");
             //var project = Project.GetProject(new DirectoryInfo(e.FullPath), true);
@@ -189,14 +193,14 @@
             Debug.WriteLine($"OnDeletedProject - {e.Name}, {e.FullPath}.");
 
             //// Событие удаления проекта
-            //var msg = $"Удален проект: {e.Name}, {DateTime.Now}.";
-            //Notify.ShowError(msg);
-            //if (Project.Projects.TryGetValue(e.Name, out var project))
-            //{
+            // var msg = $"Удален проект: {e.Name}, {DateTime.Now}.";
+            // Notify.ShowError(msg);
+            // if (Project.Projects.TryGetValue(e.Name, out var project))
+            // {
             //    project.Events.Add(msg);
             //    project.Background = eventDeleteBackground;
             //    project.Shortcuts = new List<ShortcutItem>();
-            //}
+            // }
         }
 
         private void OnRenamedProject(RenamedEventArgs e)
@@ -204,23 +208,23 @@
             Debug.WriteLine($"OnRenamedProject - {e.OldName}->{e.Name}, {e.FullPath}.");
 
             //// Событие переименования проекта
-            //var msg = $"Переименован проект: {e.OldName} -> {e.Name}, {DateTime.Now}.";
-            //Notify.ShowWarning(msg);
-            //if (Project.Projects.TryGetValue(e.OldName, out var project))
-            //{
+            // var msg = $"Переименован проект: {e.OldName} -> {e.Name}, {DateTime.Now}.";
+            // Notify.ShowWarning(msg);
+            // if (Project.Projects.TryGetValue(e.OldName, out var project))
+            // {
             //    project.Name = e.Name;
             //    project.Dir = e.FullPath;
             //    project.Events.Add(msg);
             //    project.Background = eventBackground;
-            //}
+            // }
         }
 
         private void OnChangedProject(FileSystemEventArgs e)
         {
             Debug.WriteLine($"OnChangedProject - {e.Name}, {e.FullPath}.");
 
-            //var msg = $"OnChangedProject: {e.Name}, {e.FullPath}, {DateTime.Now}.";
-            //Notify.ShowWarning(msg);
+            // var msg = $"OnChangedProject: {e.Name}, {e.FullPath}, {DateTime.Now}.";
+            // Notify.ShowWarning(msg);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace ShortcutMonitor.GUI.Data
+﻿using System.Collections.ObjectModel;
+
+namespace ShortcutMonitor.GUI.Data
 {
     using System;
     using System.Windows.Media;
@@ -6,7 +8,7 @@
 
     public interface IEventItem
     {
-        ReactiveList<string> Events { get; set; }
+        ObservableCollection<string> Events { get; set; }
 
         Brush Background { get; set; }
 

@@ -1,4 +1,10 @@
-﻿using System.IO;
+﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
+using System.Net.Mail;
+using System.Reactive;
+using DynamicData;
+using ShortcutMonitor.GUI.Model;
 
 namespace ShortcutMonitor.GUI
 {
@@ -17,25 +23,34 @@ namespace ShortcutMonitor.GUI
 
     public class ProjectsVM : BaseModel
     {
+        private IObservable<string> filterObs;
+
         public ProjectsVM(MainVM mainVm)
             : base(mainVm)
         {
             MainVm = mainVm;
+            filterObs = this.WhenAnyValue(v => v.Filter);
             OpenDir = CreateCommand<Project>(OpenDirExec);
             OpenSourceFolder = CreateCommand<ShortcutItem>(OpenSourceFolderExec);
-            this.WhenAnyValue(v => v.Filter).Skip(1).Subscribe(s => Projects?.Reset());
+            MainVM.AllProjects.Connect().AutoRefreshOnObservable(f => filterObs)
+                .Filter(OnFilter)
+                .Bind(out var data)
+                .Subscribe();
+            Projects = data;
+            SendEmail = CreateCommand<State>(SendEmailExec);
+            FixCmd = CreateCommand<State>(FixExec);
         }
 
         public MainVM MainVm { get; set; }
         public string Filter { get; set; }
-        public IReactiveDerivedList<Project> Projects { get; set; }
-
-        public ReactiveCommand OpenDir { get; set; }
-        public ReactiveCommand OpenSourceFolder { get; set; }
+        public ReadOnlyObservableCollection<Project> Projects { get; set; }
+        public ReactiveCommand<Project, Unit> OpenDir { get; set; }
+        public ReactiveCommand<ShortcutItem, Unit> OpenSourceFolder { get; set; }
+        public ReactiveCommand<State, Unit> SendEmail { get; set; }
+        public ReactiveCommand<State, Unit> FixCmd { get; set; }
 
         public async void UpdateProjects()
         {
-            Projects = MainVM.AllProjects.CreateDerivedCollection(s => s, OnFilter);
             CheckProjects();
             var otherProjects = await CheckOtherProjects();
             MainVM.AllProjects.AddRange(otherProjects);
@@ -63,8 +78,7 @@ namespace ShortcutMonitor.GUI
 
         private bool OnFilter(Project proj)
         {
-            if (Filter.IsNullOrEmpty() || proj == null)
-                return true;
+            if (Filter.IsNullOrEmpty() || proj == null) return true;
             return Regex.IsMatch(proj.ToString(), Filter, RegexOptions.IgnoreCase);
         }
 
@@ -80,7 +94,7 @@ namespace ShortcutMonitor.GUI
 
         private void CheckProjects()
         {
-            foreach (var project in MainVM.AllProjects)
+            foreach (var project in MainVM.AllProjects.Items.ToList())
             {
                 CheckProject(project);
             }
@@ -89,8 +103,8 @@ namespace ShortcutMonitor.GUI
         private void CheckProject([NotNull] Project project)
         {
             // Поверхность ЧЗ
-            var blackSurfaces = project.Shortcuts.Where(w => w.ElementType == "AeccDbSurfaceTin" &&  w.ElementName.StartsWith("ЧЗ")).ToList();
-            CheckSurfaces(blackSurfaces, "ЧЗ", "1-Исходные данные", "ЧЗ", project);
+            var blackSurfaces = project.Shortcuts.Where(w => w.ElementType == "AeccDbSurfaceTin" && w.ElementName.StartsWith("ЧЗ")).ToList();
+            CheckSurfaces(blackSurfaces, "ЧЗ", @"1-Исходные данные\2-ЦМР", "ЧЗ", project);
 
             // Поверхность КЗ
             var redSurfaces = project.Shortcuts.Where(w => w.ElementType == "AeccDbSurfaceTin" && w.ElementName.StartsWith("КЗ")).ToList();
@@ -102,35 +116,65 @@ namespace ShortcutMonitor.GUI
         {
             if (surfs.Count == 0)
             {
-                project.Status.Add(State.Error(null, $"{title} - нет", "Нет поверхности"));
+                project.Status.Add(State.Error(null, $"{title} - нет", $"Нет '{title}' поверхности"));
                 return;
             }
 
+            Action<State> fix;
             if (surfs.Count > 1)
             {
                 foreach (var item in surfs)
                 {
-                    var errItem = CheckRelSourcePath(item, relPathFromProjDir);
+                    var errItem = CheckRelSourcePath(item, relPathFromProjDir, out fix);
+                    errItem += $" Несколько элементов '{title}' в проекте.";
                     var text = $"{item.ElementName} - (несколько) {(errItem.IsNullOrEmpty() ? "" : item.SourceDwg)}";
-                    project.Status.Add(State.Error(item, text, errItem));
+                    project.Status.Add(State.Error(item, text, errItem, true, fix));
                 }
 
                 return;
             }
 
             var surf = surfs[0];
-            var err = CheckRelSourcePath(surf, relPathFromProjDir);
+            var err  = CheckRelSourcePath(surf, relPathFromProjDir, out fix);
             if (!err.IsNullOrEmpty())
-                project.Status.Add(State.Error(surf, $"{surf.ElementName} - {surf.SourceDwg}", err));
+            {
+                project.Status.Add(State.Error(surf, $"{surf.ElementName} - {surf.SourceDwg}", err, true, fix));
+            }
         }
 
-        private string CheckRelSourcePath(ShortcutItem item, string relPathFromProjDir)
+        private string CheckRelSourcePath(ShortcutItem item, string relPathFromProjDir, out Action<State> fix)
         {
             var sourceDir = System.IO.Path.GetDirectoryName(item.SourceDwg);
             var relDir = System.IO.Path.Combine(item.Project.Dir, relPathFromProjDir);
-            return !System.IO.Path.GetFullPath(sourceDir).Equals(System.IO.Path.GetFullPath(relDir))
-                ? $"Исходный файл должен лежать в папке '{relPathFromProjDir}'."
-                : null;
+            if (!System.IO.Path.GetFullPath(sourceDir).EqualsIgnoreCase(System.IO.Path.GetFullPath(relDir)))
+            {
+                var fixDir = System.IO.Path.Combine(MainVm.ShortcutFolder, item.Project.Name, relPathFromProjDir);
+                var fixPath = System.IO.Path.Combine(fixDir, System.IO.Path.GetFileName(item.SourceDwg));
+                fix = s => Fix.FixPath(item, fixPath, s);
+                return $"Файл должен лежать в папке '{fixDir}'.";
+            }
+
+            fix = null;
+            return null;
+        }
+
+        private void FixExec(State state)
+        {
+            state.Fix(state);
+        }
+
+        private void SendEmailExec(State state)
+        {
+            var mail  = new MailMessage();
+            var login = Helper.GetLogin(state.Item.Author);
+            if (login.IsNullOrEmpty()) return;
+            mail.IsBodyHtml = true;
+            mail.To.Add($"{login}@pik.ru");
+            mail.Subject = $"Ошибка в элементе быстрой ссылки '{state.Item.ElementName}' {state.Item.Project.Name}";
+            mail.Body = $@"Проект: {state.Item.Project.Name}%0A
+Файл быстрой ссылки: {state.Item.SourceDwg}%0A
+Исправить ошибку: {state.Msg}";
+            mail.MailTo();
         }
     }
 }
