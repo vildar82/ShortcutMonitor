@@ -13,6 +13,7 @@
         {
         }
 
+        public Project Project { get; set; }
         public ShortcutItem Item { get; set; }
         public string Status { get; set; }
         public Brush Color { get; set; }
@@ -20,6 +21,7 @@
         public string Title { get; set; }
         public bool IsEmailErr { get; set; }
         public Action<State> Fix { get; set; }
+        public string Author { get; set; }
 
         public static State Ok(ShortcutItem item, string title, string msg)
         {
@@ -33,17 +35,19 @@
             };
         }
 
-        public static State Error(ShortcutItem item, string title, string msg, bool isEmailErr = false, Action<State> fix = null)
+        public static State Error(ShortcutItem item, Project project, string title, string msg, bool isEmailErr = false, Action<State> fix = null, string author = null)
         {
             return new State
             {
+                Project = project,
                 Item = item,
                 Color = colorErr,
                 Status = "Error",
                 Msg = msg,
                 Title = title,
                 IsEmailErr = isEmailErr,
-                Fix = fix
+                Fix = fix,
+                Author = author ?? item?.Author
             };
         }
     }

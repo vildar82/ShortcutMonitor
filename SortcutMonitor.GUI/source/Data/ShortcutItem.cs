@@ -1,4 +1,6 @@
-﻿namespace ShortcutMonitor.GUI.Data
+﻿using System.Collections.Generic;
+
+namespace ShortcutMonitor.GUI.Data
 {
     using System;
     using System.Collections.ObjectModel;

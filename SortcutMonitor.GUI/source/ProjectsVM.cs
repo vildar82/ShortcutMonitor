@@ -102,13 +102,33 @@ namespace ShortcutMonitor.GUI
 
         private void CheckProject([NotNull] Project project)
         {
+            var surfaces = project.Shortcuts.Where(w => w.ElementType == "AeccDbSurfaceTin").ToList();
+
             // Поверхность ЧЗ
-            var blackSurfaces = project.Shortcuts.Where(w => w.ElementType == "AeccDbSurfaceTin" && w.ElementName.StartsWith("ЧЗ")).ToList();
+            var blackSurfaces = surfaces.Where(w => w.ElementName.StartsWith("ЧЗ")).ToList();
             CheckSurfaces(blackSurfaces, "ЧЗ", @"1-Исходные данные\2-ЦМР", "ЧЗ", project);
 
             // Поверхность КЗ
-            var redSurfaces = project.Shortcuts.Where(w => w.ElementType == "AeccDbSurfaceTin" && w.ElementName.StartsWith("КЗ")).ToList();
+            var redSurfaces = surfaces.Where(w => w.ElementName.StartsWith("КЗ")).ToList();
             CheckSurfaces(redSurfaces, "КЗ", @"3-Рабочие Чертежи\ГП", "КЗ", project);
+
+            // В папке 1-Исходные данные\2-ЦМР должны лежать только элементы ЧЗ.
+            foreach (var item in surfaces.Where(w => IsBlackSurfPath(w.SourceDwg) && !w.ElementName.StartsWith("ЧЗ_")))
+            {
+                project.Status.Add(State.Error(item, project, $"Исправить имя быстрой ссылки черной поверхности '{item.ElementName}'.", $@"Элемент быстрой ссылки '{item.ElementName}' лежит в папке '1-Исходные данные\2-ЦМР' для черной поверхности! Имя элемента черной поверхности должно начинаться с 'ЧЗ_'. Исправить имя элемента быстрой ссылки!", true));
+            }
+
+            // Примечание
+            if (project.Description.IsNullOrEmpty())
+            {
+                project.Status.Add(State.Error(null, project, "Нет описания проекта.", "Добавить описание к проекту.",
+                    true, author: project.Author, fix: Fix.FixProjectDesc));
+            }
+        }
+
+        private bool IsBlackSurfPath(string dwgPath)
+        {
+            return dwgPath.Contains(@"1-Исходные данные\2-ЦМР", StringComparison.OrdinalIgnoreCase);
         }
 
         private void CheckSurfaces(List<ShortcutItem> surfs, string surfPrefix, string relPathFromProjDir, string title,
@@ -116,7 +136,7 @@ namespace ShortcutMonitor.GUI
         {
             if (surfs.Count == 0)
             {
-                project.Status.Add(State.Error(null, $"{title} - нет", $"Нет '{title}' поверхности"));
+                project.Status.Add(State.Error(null, project, $"{title} - нет", $"Нет '{title}' поверхности"));
                 return;
             }
 
@@ -128,7 +148,7 @@ namespace ShortcutMonitor.GUI
                     var errItem = CheckRelSourcePath(item, relPathFromProjDir, out fix);
                     errItem += $" Несколько элементов '{title}' в проекте.";
                     var text = $"{item.ElementName} - (несколько) {(errItem.IsNullOrEmpty() ? "" : item.SourceDwg)}";
-                    project.Status.Add(State.Error(item, text, errItem, true, fix));
+                    item.Project.Status.Add(State.Error(item, project, text, errItem, true, fix));
                 }
 
                 return;
@@ -138,7 +158,7 @@ namespace ShortcutMonitor.GUI
             var err  = CheckRelSourcePath(surf, relPathFromProjDir, out fix);
             if (!err.IsNullOrEmpty())
             {
-                project.Status.Add(State.Error(surf, $"{surf.ElementName} - {surf.SourceDwg}", err, true, fix));
+                surf.Project.Status.Add(State.Error(surf, project, $"{surf.ElementName} - {surf.SourceDwg}", err, true, fix));
             }
         }
 
@@ -166,13 +186,15 @@ namespace ShortcutMonitor.GUI
         private void SendEmailExec(State state)
         {
             var mail  = new MailMessage();
-            var login = Helper.GetLogin(state.Item.Author);
+            var login = Helper.GetLogin(state.Author);
             if (login.IsNullOrEmpty()) return;
             mail.IsBodyHtml = true;
             mail.To.Add($"{login}@pik.ru");
-            mail.Subject = $"Ошибка в элементе быстрой ссылки '{state.Item.ElementName}' {state.Item.Project.Name}";
-            mail.Body = $@"Проект: {state.Item.Project.Name}%0A
-Файл быстрой ссылки: {state.Item.SourceDwg}%0A
+            mail.Subject = state.Item != null
+                ? $"Ошибка в элементе быстрой ссылки '{state.Item.ElementName}' {state.Item.Project.Name}"
+                : $"Ошибка в проекте быстрой ссылки '{state.Project.Name}'";
+            mail.Body = $@"Проект: {state.Project.Name}%0A
+{(state.Item == null ? string.Empty : "Файл быстрой ссылки: {state.Item.SourceDwg}%0A")}
 Исправить ошибку: {state.Msg}";
             mail.MailTo();
         }

@@ -1,4 +1,6 @@
-﻿namespace ShortcutMonitor.GUI.Xml
+﻿using System.Xml.Serialization;
+
+namespace ShortcutMonitor.GUI.Xml
 {
     /// <summary>
     /// Файл ShortcutsHistory.xml
@@ -10,7 +12,9 @@
 
     public class ShortProjectID
     {
+        [XmlAttribute(AttributeName = "uuid")]
         public string Uuid { get; set; }
+        [XmlAttribute(AttributeName = "desc")]
         public string Desc { get; set; }
     }
 }

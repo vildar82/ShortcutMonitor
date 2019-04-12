@@ -47,8 +47,6 @@ namespace ShortcutMonitor.GUI.Data
 					{
 						Thread.Sleep(TimeSpan.FromSeconds(15));
 					}
-
-					return;
 				});
 			}
 
