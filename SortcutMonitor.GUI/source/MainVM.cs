@@ -33,19 +33,15 @@
         public MainVM()
         {
             MainVm = this;
-            Checks = new Checks(this);
             Notify = new Notifier(cfg =>
             {
                 cfg.PositionProvider = new PrimaryScreenPositionProvider(
                     corner: Corner.TopRight,
                     offsetX: 10,
                     offsetY: 30);
-
                 cfg.LifetimeSupervisor = new CountBasedLifetimeSupervisor(
                     maximumNotificationCount: MaximumNotificationCount.UnlimitedNotifications());
-
                 cfg.DisplayOptions.Width = 800;
-
                 cfg.Dispatcher = dispatcher;
             });
             ElementsVM = new ElementsVM(this);
@@ -62,7 +58,6 @@
 #else
         public string ShortcutFolder { get; set; } = @"\\picompany.ru\root\ecp_wip\C3D_Projects";
 #endif
-        public static Checks Checks { get; set; }
         public ElementsVM ElementsVM { get; set; }
         public ProjectsVM ProjectsVM { get; set; }
         public ReactiveCommand<Unit, Unit> Update { get; set; }
@@ -85,7 +80,7 @@
                 var files = new List<FileInfo>();
                 AllElements.Clear();
                 AllProjects.Clear();
-                await ShowProgressDialog(async c =>
+                await ShowProgressDialog(c =>
                 {
                     c.SetIndeterminate();
                     if (ShortcutFolder == null || !Directory.Exists(ShortcutFolder))
@@ -107,6 +102,7 @@
                     var items = await GetShortcutItems(xmls);
                     foreach (var i in items)
                     {
+                        Checks.CheckElement(i);
                         i.Project.Shortcuts.Add(i);
                         AllElements.Add(i);
                     }
@@ -157,9 +153,6 @@
                 return xmlFiles.Select(s =>
                 {
                     var item = new ShortcutItem(s);
-                    item.SourceDwgValid = Checks.CheckElementFile(item.SourceDwg, out var err);
-                    item.SourceDwgErr   = err;
-                    if (!item.SourceDwgValid) item.HasError = true;
                     return item;
                 }).ToList();
             });

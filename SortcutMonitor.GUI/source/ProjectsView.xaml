@@ -58,8 +58,8 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate DataType="data:Project">
                             <StackPanel Orientation="Horizontal">
-                                <ItemsControl ItemsSource="{Binding Status}">
-                                    <ItemsControl.ItemTemplate>
+                                <ListBox ItemsSource="{Binding Status}">
+                                    <ListBox.ItemTemplate>
                                         <DataTemplate DataType="data:State">
                                             <StackPanel Orientation="Horizontal" ToolTip="{Binding Msg}">
                                                 <TextBlock Text="{Binding Status}" Foreground="{Binding Color}" FontWeight="Bold" VerticalAlignment="Center"/>
@@ -77,8 +77,8 @@
                                                 </StackPanel.InputBindings>
                                             </StackPanel>
                                         </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
                             </StackPanel>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>

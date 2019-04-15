@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using DynamicData;
+using ShortcutMonitor.GUI.Model;
 
 namespace ShortcutMonitor.GUI.Data
 {
@@ -122,6 +123,7 @@ namespace ShortcutMonitor.GUI.Data
 
 			foreach (var item in items)
 			{
+				Checks.CheckElement(item);
 				var shortcut = Shortcuts.FirstOrDefault(i => i.XmlFile == item.XmlFile);
 				if (shortcut == null)
 				{

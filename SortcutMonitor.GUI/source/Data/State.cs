@@ -23,15 +23,17 @@
         public Action<State> Fix { get; set; }
         public string Author { get; set; }
 
-        public static State Ok(ShortcutItem item, string title, string msg)
+        public static State Ok(ShortcutItem item, Project project, string title, string msg, Action<State> fix = null)
         {
             return new State
             {
                 Item = item,
+                Project = project,
                 Color = colorOk,
                 Status = "OK",
                 Title = title,
-                Msg = msg
+                Msg = msg,
+                Fix = fix
             };
         }
 

@@ -56,19 +56,20 @@ namespace ShortcutMonitor.GUI
             MainVM.AllProjects.AddRange(otherProjects);
         }
 
-        private Task<List<Project>> CheckOtherProjects()
+        private async Task<List<Project>> CheckOtherProjects()
         {
-            return Task.Run(() =>
+            return await Task.Run(async () =>
             {
                 var projects = new List<Project>();
-                var dir = new DirectoryInfo(MainVm.ShortcutFolder);
+                var dir      = new DirectoryInfo(MainVm.ShortcutFolder);
                 foreach (var projDir in dir.EnumerateDirectories())
                 {
                     if (Project.GetProject(projDir, false) == null)
                     {
-                        var proj = Project.GetProject(projDir, true);
-                        var itemFiles = MainVM.GetShortcutFiles(projDir.FullName).Result;
-                        proj.Shortcuts = MainVM.GetShortcutItems(itemFiles).Result;
+                        var proj      = Project.GetProject(projDir, true);
+                        var itemFiles = await MainVM.GetShortcutFiles(projDir.FullName);
+                        proj.Shortcuts = await MainVM.GetShortcutItems(itemFiles);
+                        foreach (var i in proj.Shortcuts) Checks.CheckElement(i);
                         projects.Add(proj);
                     }
                 }
@@ -112,23 +113,16 @@ namespace ShortcutMonitor.GUI
             var redSurfaces = surfaces.Where(w => w.ElementName.StartsWith("КЗ")).ToList();
             CheckSurfaces(redSurfaces, "КЗ", @"3-Рабочие Чертежи\ГП", "КЗ", project);
 
-            // В папке 1-Исходные данные\2-ЦМР должны лежать только элементы ЧЗ.
-            foreach (var item in surfaces.Where(w => IsBlackSurfPath(w.SourceDwg) && !w.ElementName.StartsWith("ЧЗ_")))
-            {
-                project.Status.Add(State.Error(item, project, $"Исправить имя быстрой ссылки черной поверхности '{item.ElementName}'.", $@"Элемент быстрой ссылки '{item.ElementName}' лежит в папке '1-Исходные данные\2-ЦМР' для черной поверхности! Имя элемента черной поверхности должно начинаться с 'ЧЗ_'. Исправить имя элемента быстрой ссылки!", true));
-            }
-
             // Примечание
             if (project.Description.IsNullOrEmpty())
             {
                 project.Status.Add(State.Error(null, project, "Нет описания проекта.", "Добавить описание к проекту.",
                     true, author: project.Author, fix: Fix.FixProjectDesc));
             }
-        }
-
-        private bool IsBlackSurfPath(string dwgPath)
-        {
-            return dwgPath.Contains(@"1-Исходные данные\2-ЦМР", StringComparison.OrdinalIgnoreCase);
+            else
+            {
+                project.Status.Add(State.Ok(null, project, $"Описание: {project.Description}", project.Description, fix: Fix.FixProjectDesc));
+            }
         }
 
         private void CheckSurfaces(List<ShortcutItem> surfs, string surfPrefix, string relPathFromProjDir, string title,
@@ -140,42 +134,14 @@ namespace ShortcutMonitor.GUI
                 return;
             }
 
-            Action<State> fix;
             if (surfs.Count > 1)
             {
                 foreach (var item in surfs)
                 {
-                    var errItem = CheckRelSourcePath(item, relPathFromProjDir, out fix);
-                    errItem += $" Несколько элементов '{title}' в проекте.";
-                    var text = $"{item.ElementName} - (несколько) {(errItem.IsNullOrEmpty() ? "" : item.SourceDwg)}";
-                    item.Project.Status.Add(State.Error(item, project, text, errItem, true, fix));
+                    var msg = $"Несколько элементов '{title}' в проекте.";
+                    item.Project.Status.Add(State.Error(item, project, msg, msg, true));
                 }
-
-                return;
             }
-
-            var surf = surfs[0];
-            var err  = CheckRelSourcePath(surf, relPathFromProjDir, out fix);
-            if (!err.IsNullOrEmpty())
-            {
-                surf.Project.Status.Add(State.Error(surf, project, $"{surf.ElementName} - {surf.SourceDwg}", err, true, fix));
-            }
-        }
-
-        private string CheckRelSourcePath(ShortcutItem item, string relPathFromProjDir, out Action<State> fix)
-        {
-            var sourceDir = System.IO.Path.GetDirectoryName(item.SourceDwg);
-            var relDir = System.IO.Path.Combine(item.Project.Dir, relPathFromProjDir);
-            if (!System.IO.Path.GetFullPath(sourceDir).EqualsIgnoreCase(System.IO.Path.GetFullPath(relDir)))
-            {
-                var fixDir = System.IO.Path.Combine(MainVm.ShortcutFolder, item.Project.Name, relPathFromProjDir);
-                var fixPath = System.IO.Path.Combine(fixDir, System.IO.Path.GetFileName(item.SourceDwg));
-                fix = s => Fix.FixPath(item, fixPath, s);
-                return $"Файл должен лежать в папке '{fixDir}'.";
-            }
-
-            fix = null;
-            return null;
         }
 
         private void FixExec(State state)

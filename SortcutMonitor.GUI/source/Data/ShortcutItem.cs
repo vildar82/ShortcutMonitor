@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace ShortcutMonitor.GUI.Data
 {
@@ -73,9 +74,6 @@ namespace ShortcutMonitor.GUI.Data
         /// </summary>
         public string SourceDwg { get; set; }
 
-        public bool SourceDwgValid { get; set; }
-        public string SourceDwgErr { get; set; }
-
         /// <summary>
         /// Название элемента быстрой ссылки - имя поверхности и т.п.
         /// </summary>
@@ -98,7 +96,13 @@ namespace ShortcutMonitor.GUI.Data
         public ObservableCollection<string> Events { get; set; } = new ObservableCollection<string>();
         public Brush Background { get; set; }
         public bool IsDeleted { get; set; }
-        public bool HasError { get; set; }
+
+        /// <summary>
+        /// Проверки
+        /// </summary>
+        public List<State> Status { get; set; } = new List<State>();
+
+        public bool HasError => Status?.Any() == true;
 
         /// <inheritdoc />
         public override string ToString()

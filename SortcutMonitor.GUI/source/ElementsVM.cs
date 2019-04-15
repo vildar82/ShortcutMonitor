@@ -1,6 +1,8 @@
 ﻿using System.Collections.ObjectModel;
+using System.Linq;
 using System.Net.Mail;
 using System.Reactive;
+using System.Xaml.Schema;
 using DynamicData;
 using ShortcutMonitor.GUI.Model;
 
@@ -32,6 +34,7 @@ namespace ShortcutMonitor.GUI
                 .Subscribe();
             Elements = data;
             Email = CreateCommand<ShortcutItem>(EmailExec);
+            FixCmd = CreateCommand<ShortcutItem>(FixCmdExec);
         }
 
         public string Filter { get; set; }
@@ -41,6 +44,7 @@ namespace ShortcutMonitor.GUI
         public ReactiveCommand<Unit, Unit> OpenElementFolder { get; set; }
         public ReactiveCommand<string, Unit> OpenAutor { get; set; }
         public ReactiveCommand<ShortcutItem, Unit> Email { get; set; }
+        public ReactiveCommand<ShortcutItem, Unit> FixCmd { get; set; }
 
         private bool OnFilter(ShortcutItem item)
         {
@@ -74,11 +78,25 @@ namespace ShortcutMonitor.GUI
             if (login.IsNullOrEmpty()) return;
             mail.IsBodyHtml = true;
             mail.To.Add($"{login}@pik.ru");
-            mail.Subject = $"Ошибка в пути файла быстрой ссылки '{item.ElementName}' {item.Project.Name}";
-            mail.Body = $@"Проект: {item.Project.Name}%0A
+            mail.Subject = $"Ошибки в быстрой ссылке '{item.ElementName}' {item.Project.Name}";
+            mail.Body = $@"Название проекта быстрых ссылок: {item.Project.Name}%0A
+Название элемента быстрой ссылки: {item.ElementName}%0A
 Файл быстрой ссылки: {item.SourceDwg}%0A
-Исправить ошибку: {item.SourceDwgErr}";
+Исправить ошибки:%0A{item.Status.Select((s, i) => $"{i + 1}. {s.Msg}").JoinToString("%0A")}";
             mail.MailTo();
+        }
+
+        private void FixCmdExec(ShortcutItem item)
+        {
+            var msg = string.Empty;
+            foreach (var state in item.Status.Where(w => w.Fix != null))
+            {
+                var s = state.Msg;
+                state.Fix(state);
+                msg += $"Исправлено: {s}\n\r";
+            }
+
+            ShowMessage(msg.IsNullOrEmpty() ? "Ничего не исправлено." : msg);
         }
     }
 }
