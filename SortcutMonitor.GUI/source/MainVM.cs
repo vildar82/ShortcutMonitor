@@ -32,6 +32,11 @@
 
         public MainVM()
         {
+            if (!Directory.Exists(ShortcutFolder))
+            {
+                ShortcutFolder = Path.GetFullPath(Path.Combine(@"../../Test\C3D_Projects"));
+            }
+
             MainVm = this;
             Notify = new Notifier(cfg =>
             {
@@ -54,7 +59,7 @@
 
         public static MainVM MainVm { get; set; }
 #if DEBUG
-        public string ShortcutFolder { get; set; } = @"c:\temp\ГП\C3D_Projects";
+        public string ShortcutFolder { get; set; } = @"c:\temp\ГП\C3D_Projects2";
 #else
         public string ShortcutFolder { get; set; } = @"\\picompany.ru\root\ecp_wip\C3D_Projects";
 #endif
