@@ -1,4 +1,6 @@
-﻿namespace ShortcutMonitor.GUI
+﻿using System.Windows;
+
+namespace ShortcutMonitor.GUI
 {
     using System;
     using System.Collections.Generic;
@@ -138,8 +140,9 @@
                         .Where(IsShortcutXml)
                         .OrderByDescending(o => o.LastWriteTime).ToList();
                 }
-                catch
+                catch (Exception ex)
                 {
+                    MessageBox.Show(ex.ToString());
                     return new List<FileInfo>();
                 }
             });
