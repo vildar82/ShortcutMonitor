@@ -28,11 +28,11 @@
     <MapFileExtensions>true</MapFileExtensions>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>29</ApplicationRevision>
+    <ApplicationRevision>30</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <BootstrapperEnabled>false</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>x64</PlatformTarget>
@@ -198,121 +198,6 @@
   <ItemGroup>
     <Resource Include="shortcut.ico" />
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="Test\C3D_Projects\0003_Боброво\ShortcutsFolders.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\PipeNetworks\В1_Боброво_к5_322fe3c5d2c14029a4807f1c490828e4.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\PipeNetworks\В1_Боброво_к6_e5585a2776c8452c87479bd386dada66.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\PipeNetworks\В1_Боброво_к7.1_8.1_691c7a45bb0f4e1b88639252096adf8d.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\PipeNetworks\В1_Боброво_к7.2_28dbc13e4123482da3e4bd31d86633cc.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\PipeNetworks\В1_Боброво_к8.2_c565ef0395f44eab88d3c74850b3ed9a.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\PipeNetworks\В1сущ_5acec3b982b64a6f9edb9a7b9198c86d.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\PipeNetworks\Д_Боброво_к5_5af0e5c1a5a047b09fbc8946352e331c.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\PipeNetworks\Д_Боброво_к6_463e0960f8ab45c6a70880f0b4152f77.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\PipeNetworks\Д_Боброво_к7.1_7.2_7e6f0dc6f1044577ae32459e98f1d80c.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\PipeNetworks\Д_Боброво_к8.1_8.2_f3e7d901cecc4cd8809da21cf34f14ce.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\PipeNetworks\К1_Боброво_к5_8bcbc016358942339c643d3056b56444.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\PipeNetworks\К1_Боброво_к6_1ffea9dcadae47efa2b82914621a9587.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\PipeNetworks\К1_Боброво_к7.1_8.1_3b4239af12344bd0b5500d951559335e.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\PipeNetworks\К1_Боброво_к7.2_a250bb4b7a144a1aab6802dd852554e5.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\PipeNetworks\К1_Боброво_к8.2_8f872e941f4e490e835bdf651d60c036.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\PipeNetworks\К2_Боброво_к5_36ddb58a0f4342e796f7f31bcb91953a.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\PipeNetworks\К2_Боброво_к6_ef2e9237ff9543cd8d8e2e848ba9a5dd.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\PipeNetworks\К2_Боброво_к7.1_8.1_9b63db68ee0049dd97cb8f5bda059d04.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\PipeNetworks\К2_Боброво_к7.2_05cf5d04909a440bbb3ee9dfe6b472cd.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\PipeNetworks\К2_Боброво_к8.2_40f0b7bcd4244b95bd23544073ac5613.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\PipeNetworks\НСС_Боброво_площадка_af70d817a1974aca812bb3f376cd4022.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\PipeNetworks\ТС_Боброво 5-8_5207201871d64308b9092020c3dedc16.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\PipeNetworks\ТС_сущ_01e09996c2bf4045803b00ecf0b60817.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\PipeNetworks\ЭН_Боброво_к.5-8_faafb891058e4860af19abf15cacdbaf.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\ShortcutsHistory.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\Surfaces\КЗ_Боброво_18_19_10c8588b86c0406a99c2e8552abd9537.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\Surfaces\КЗ_Боброво_18_19_10c8588b86c0406a99c2e8552abd9537.xml_15.04.2019 04.53.bak" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\Surfaces\КЗ_Боброво_Север_f2eb880d4efa4505b6b9acf4c2767573.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\Surfaces\КЗ_Боброво_Север_f2eb880d4efa4505b6b9acf4c2767573.xml_15.04.2019 04.57.bak" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\Surfaces\Общ_Боброво_НС_b12d30397690477fa5ddd89a4c86e09c.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\Surfaces\ЧЗ_Боброво_Север_2018_1a60aa1e87a846b29b4a3caa3bd31aac.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\Surfaces\ЧЗ_Боброво_ЮГ_ca0ba42480124cd99a31bb24fe14ec0b.xml" />
-    <Content Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\Surfaces\ЧЗ_Боброво_ЮГ_ca0ba42480124cd99a31bb24fe14ec0b.xml_15.04.2019 04.57.bak" />
-    <Content Include="Test\C3D_Projects\0045_Путилково\ShortcutsFolders.xml" />
-    <Content Include="Test\C3D_Projects\0045_Путилково\_Shortcuts\PipeNetworks\К1_Корпус 47_235c6afd1a854956ba267d2b1e03b18a.xml" />
-    <Content Include="Test\C3D_Projects\0045_Путилково\_Shortcuts\PipeNetworks\К2_Корпус 47_e705a573cfe347cda3dc918400b0db69.xml" />
-    <Content Include="Test\C3D_Projects\0045_Путилково\_Shortcuts\PipeNetworks\ТС_Путилково_47_fbeeedaea23b4afcb360be03808ffdf8.xml" />
-    <Content Include="Test\C3D_Projects\0045_Путилково\_Shortcuts\ShortcutsHistory.xml" />
-    <Content Include="Test\C3D_Projects\0045_Путилково\_Shortcuts\Surfaces\КЗ_Путилково 41 и 47_Р_de9a297fa8b94c45924048af2b1d16b5.xml" />
-    <Content Include="Test\C3D_Projects\0045_Путилково\_Shortcuts\Surfaces\КЗ_Путилково К2_299bc9789a7f4363a69823c762d4d872.xml" />
-    <Content Include="Test\C3D_Projects\0045_Путилково\_Shortcuts\Surfaces\Откосы площадки_a2d5dac7335848088c2750d36d1e10dd.xml" />
-    <Content Include="Test\C3D_Projects\0045_Путилково\_Shortcuts\Surfaces\ЧЗ_Путилково_41 и 47_Р_1f377f34930f46a49a62d151904fca18.xml" />
-    <Content Include="Test\C3D_Projects\0045_Путилково\_Shortcuts\Surfaces\ЧЗ_Путилково_ВОК_2017_b208741eed324d518f72fc5989f82288.xml" />
-    <Content Include="Test\C3D_Projects\0070_ЕКБ_Уралпластик\ShortcutsFolders.xml" />
-    <Content Include="Test\C3D_Projects\0070_ЕКБ_Уралпластик\_Shortcuts\ShortcutsHistory.xml" />
-    <Content Include="Test\C3D_Projects\0070_ЕКБ_Уралпластик\_Shortcuts\Surfaces\ЧЗ_ЕКБ_Уралпластик_МЕСТН_2016_08afd5044a2b459390ca5e07dc144680.xml" />
-    <Content Include="Test\C3D_Projects\TestDesc\1-Исходные данные\2-ЦМР\lib.Чертеж1.dwg" />
-    <Content Include="Test\C3D_Projects\TestDesc\ShortcutsFolders.xml" />
-    <Content Include="Test\C3D_Projects\TestDesc\_Shortcuts\ShortcutsHistory.xml" />
-    <Content Include="Test\C3D_Projects\TestDesc\_Shortcuts\Surfaces\Поверхность1_10f97aa9502d46b2b304110978737bb2.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\Alignments\" />
-    <Folder Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\Corridors\" />
-    <Folder Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\PressurePipeNetworks\" />
-    <Folder Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\Profiles\" />
-    <Folder Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\SampleLineGroups\" />
-    <Folder Include="Test\C3D_Projects\0003_Боброво\_Shortcuts\ViewframeGroups\" />
-    <Folder Include="Test\C3D_Projects\0045_Путилково\1-Исходные данные\3-Сущ.Сети-3D\" />
-    <Folder Include="Test\C3D_Projects\0045_Путилково\2-Рабочие Чертежи\" />
-    <Folder Include="Test\C3D_Projects\0045_Путилково\3-BIM модель\" />
-    <Folder Include="Test\C3D_Projects\0045_Путилково\_Shortcuts\Alignments\" />
-    <Folder Include="Test\C3D_Projects\0045_Путилково\_Shortcuts\Corridors\" />
-    <Folder Include="Test\C3D_Projects\0045_Путилково\_Shortcuts\PressurePipeNetworks\" />
-    <Folder Include="Test\C3D_Projects\0045_Путилково\_Shortcuts\Profiles\" />
-    <Folder Include="Test\C3D_Projects\0045_Путилково\_Shortcuts\SampleLineGroups\" />
-    <Folder Include="Test\C3D_Projects\0045_Путилково\_Shortcuts\ViewframeGroups\" />
-    <Folder Include="Test\C3D_Projects\0058_Саларьево\" />
-    <Folder Include="Test\C3D_Projects\0070_ЕКБ_Уралпластик\1-Исходные данные\1-Топо-2D\" />
-    <Folder Include="Test\C3D_Projects\0070_ЕКБ_Уралпластик\1-Исходные данные\2-ЦМР\" />
-    <Folder Include="Test\C3D_Projects\0070_ЕКБ_Уралпластик\1-Исходные данные\3-Сущ.Сети-3D\" />
-    <Folder Include="Test\C3D_Projects\0070_ЕКБ_Уралпластик\2-Рабочие Чертежи\ГП\Архив\" />
-    <Folder Include="Test\C3D_Projects\0070_ЕКБ_Уралпластик\2-Рабочие Чертежи\ГП\Задания выдаваемые\АР\" />
-    <Folder Include="Test\C3D_Projects\0070_ЕКБ_Уралпластик\2-Рабочие Чертежи\ГП\Задания выдаваемые\КР\" />
-    <Folder Include="Test\C3D_Projects\0070_ЕКБ_Уралпластик\2-Рабочие Чертежи\КР\" />
-    <Folder Include="Test\C3D_Projects\0070_ЕКБ_Уралпластик\2-Рабочие Чертежи\НС\00_Архив\" />
-    <Folder Include="Test\C3D_Projects\0070_ЕКБ_Уралпластик\2-Рабочие Чертежи\НС\1_НВК\" />
-    <Folder Include="Test\C3D_Projects\0070_ЕКБ_Уралпластик\2-Рабочие Чертежи\НС\2_ТС\" />
-    <Folder Include="Test\C3D_Projects\0070_ЕКБ_Уралпластик\2-Рабочие Чертежи\НС\3_ЭС\" />
-    <Folder Include="Test\C3D_Projects\0070_ЕКБ_Уралпластик\2-Рабочие Чертежи\НС\4_НСС\" />
-    <Folder Include="Test\C3D_Projects\0070_ЕКБ_Уралпластик\2-Рабочие Чертежи\НС\5_На_Подряде\" />
-    <Folder Include="Test\C3D_Projects\0070_ЕКБ_Уралпластик\2-Рабочие Чертежи\ПОС\" />
-    <Folder Include="Test\C3D_Projects\0070_ЕКБ_Уралпластик\3-BIM модель\" />
-    <Folder Include="Test\C3D_Projects\0070_ЕКБ_Уралпластик\_Shortcuts\Alignments\" />
-    <Folder Include="Test\C3D_Projects\0070_ЕКБ_Уралпластик\_Shortcuts\Corridors\" />
-    <Folder Include="Test\C3D_Projects\0070_ЕКБ_Уралпластик\_Shortcuts\PipeNetworks\" />
-    <Folder Include="Test\C3D_Projects\0070_ЕКБ_Уралпластик\_Shortcuts\PressurePipeNetworks\" />
-    <Folder Include="Test\C3D_Projects\0070_ЕКБ_Уралпластик\_Shortcuts\Profiles\" />
-    <Folder Include="Test\C3D_Projects\0070_ЕКБ_Уралпластик\_Shortcuts\SampleLineGroups\" />
-    <Folder Include="Test\C3D_Projects\0070_ЕКБ_Уралпластик\_Shortcuts\ViewframeGroups\" />
-    <Folder Include="Test\C3D_Projects\TestDesc\1-Исходные данные\1-Топо-2D\" />
-    <Folder Include="Test\C3D_Projects\TestDesc\1-Исходные данные\3-Сущ.Сети-3D\" />
-    <Folder Include="Test\C3D_Projects\TestDesc\2-Рабочие Чертежи\ГП\Архив\" />
-    <Folder Include="Test\C3D_Projects\TestDesc\2-Рабочие Чертежи\ГП\Задания выдаваемые\АР\" />
-    <Folder Include="Test\C3D_Projects\TestDesc\2-Рабочие Чертежи\ГП\Задания выдаваемые\КР\" />
-    <Folder Include="Test\C3D_Projects\TestDesc\2-Рабочие Чертежи\ГП\Задания получаемые\АР\" />
-    <Folder Include="Test\C3D_Projects\TestDesc\2-Рабочие Чертежи\ГП\Задания получаемые\КР\" />
-    <Folder Include="Test\C3D_Projects\TestDesc\2-Рабочие Чертежи\КР\" />
-    <Folder Include="Test\C3D_Projects\TestDesc\2-Рабочие Чертежи\НС\00_Архив\" />
-    <Folder Include="Test\C3D_Projects\TestDesc\2-Рабочие Чертежи\НС\1_НВК\" />
-    <Folder Include="Test\C3D_Projects\TestDesc\2-Рабочие Чертежи\НС\2_ТС\" />
-    <Folder Include="Test\C3D_Projects\TestDesc\2-Рабочие Чертежи\НС\3_ЭС\" />
-    <Folder Include="Test\C3D_Projects\TestDesc\2-Рабочие Чертежи\НС\4_НСС\" />
-    <Folder Include="Test\C3D_Projects\TestDesc\2-Рабочие Чертежи\НС\5_На_Подряде\" />
-    <Folder Include="Test\C3D_Projects\TestDesc\2-Рабочие Чертежи\ПОС\" />
-    <Folder Include="Test\C3D_Projects\TestDesc\3-BIM модель\" />
-    <Folder Include="Test\C3D_Projects\TestDesc\_Shortcuts\Alignments\" />
-    <Folder Include="Test\C3D_Projects\TestDesc\_Shortcuts\Corridors\" />
-    <Folder Include="Test\C3D_Projects\TestDesc\_Shortcuts\PipeNetworks\" />
-    <Folder Include="Test\C3D_Projects\TestDesc\_Shortcuts\PressurePipeNetworks\" />
-    <Folder Include="Test\C3D_Projects\TestDesc\_Shortcuts\Profiles\" />
-    <Folder Include="Test\C3D_Projects\TestDesc\_Shortcuts\SampleLineGroups\" />
-    <Folder Include="Test\C3D_Projects\TestDesc\_Shortcuts\ViewframeGroups\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
