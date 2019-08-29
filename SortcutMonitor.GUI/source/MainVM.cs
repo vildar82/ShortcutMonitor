@@ -34,11 +34,6 @@ namespace ShortcutMonitor.GUI
 
         public MainVM()
         {
-            if (!Directory.Exists(ShortcutFolder))
-            {
-                ShortcutFolder = Path.GetFullPath(Path.Combine(@"../../Test\C3D_Projects"));
-            }
-
             MainVm = this;
             Notify = new Notifier(cfg =>
             {
@@ -53,6 +48,9 @@ namespace ShortcutMonitor.GUI
             });
             ElementsVM = new ElementsVM(this);
             ProjectsVM = new ProjectsVM(this);
+#if DEBUG
+            ShortcutFolder = @"d:\vildar\test\GP\C3D_Projects";
+#endif
             this.WhenAnyValue(v => v.ShortcutFolder).Delay(TimeSpan.FromMilliseconds(200))
                 .ObserveOn(dispatcher)
                 .Subscribe(s => UpdateExecute());
@@ -60,11 +58,7 @@ namespace ShortcutMonitor.GUI
         }
 
         public static MainVM MainVm { get; set; }
-#if DEBUG
-        public string ShortcutFolder { get; set; } = @"c:\temp\ГП\C3D_Projects2";
-#else
         public string ShortcutFolder { get; set; } = @"\\picompany.ru\root\ecp_wip\C3D_Projects";
-#endif
         public ElementsVM ElementsVM { get; set; }
         public ProjectsVM ProjectsVM { get; set; }
         public ReactiveCommand<Unit, Unit> Update { get; set; }

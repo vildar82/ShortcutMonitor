@@ -39,10 +39,11 @@ namespace ShortcutMonitor.GUI.Model
 		public static void FixProjectDesc(State state)
 		{
 			var textVm = new TextVM("Примечание", $"Примечание к проекту быстрой ссылки '{state.Project.Name}'",
-				"", s => null);
+				state.Project.Description, s => null);
 			var textView = new TextView(textVm);
 			if (textView.ShowDialog() != true) throw new OperationCanceledException();
 			state.Project.Description = textVm.Value;
+			state.Title = textVm.Value;
 			var his = Path.Combine(state.Project.Dir, @"_Shortcuts\ShortcutsHistory.xml");
 			var hisText = File.ReadAllText(his);
 			var match = Regex.Match(hisText, @"desc="".*""");
