@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using NetLib.IO;
 
 namespace ShortcutMonitor.GUI.Data
 {
@@ -26,8 +27,6 @@ namespace ShortcutMonitor.GUI.Data
             LastWriteDate = xmlFile.LastWriteTime;
             Project = Project.GetProject(xmlFile.Directory.Parent.Parent, true);
             Group = xmlFile.Directory.Name;
-            Author = xmlFile.FullName.Try(f =>
-                System.IO.File.GetAccessControl(f).GetOwner(typeof(System.Security.Principal.NTAccount)).ToString());
             ProjectXml = xmlFile.FullName.Try(f => f?.FromXml<ProjectInfo>());
             var shc = ProjectXml?.Shortcuts?.Shortcut;
             if (shc != null)
@@ -40,6 +39,11 @@ namespace ShortcutMonitor.GUI.Data
                 ElementType = obj?.Type;
                 ElementDescription = obj?.ObjectDescription;
                 ElementLayer = shc.Criteria?.DisplayProperties?.Layer;
+                Author = SourceDwg.Author();
+            }
+            else
+            {
+                Author = xmlFile.FullName.Author();
             }
         }
 
